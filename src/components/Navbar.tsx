@@ -1,15 +1,10 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Sprout, Home, Upload, Info, Settings, User, LogOut, BarChart3 } from 'lucide-react';
+import { Sprout, Home, Upload, Info, Settings } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import LanguageSelector from './LanguageSelector';
 
-interface NavbarProps {
-  user?: any;
-  onLogout?: () => void;
-}
-
-const Navbar: React.FC<NavbarProps> = ({ user, onLogout }) => {
+const Navbar: React.FC = () => {
   const { t } = useLanguage();
   const location = useLocation();
 
@@ -41,19 +36,6 @@ const Navbar: React.FC<NavbarProps> = ({ user, onLogout }) => {
               <Home className="w-4 h-4" />
               <span>{t('nav.home')}</span>
             </Link>
-            {user && (
-              <Link
-                to="/dashboard"
-                className={`flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                  isActive('/dashboard') 
-                    ? 'bg-green-700 text-white' 
-                    : 'text-green-100 hover:bg-green-500 hover:text-white'
-                }`}
-              >
-                <BarChart3 className="w-4 h-4" />
-                <span>Dashboard</span>
-              </Link>
-            )}
             <Link
               to="/upload"
               className={`flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
@@ -88,21 +70,6 @@ const Navbar: React.FC<NavbarProps> = ({ user, onLogout }) => {
               <span>{t('nav.admin')}</span>
             </Link>
             <LanguageSelector />
-            {user && (
-              <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-2 text-green-100">
-                  <User className="w-4 h-4" />
-                  <span className="text-sm">{user.name}</span>
-                </div>
-                <button
-                  onClick={onLogout}
-                  className="flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium text-green-100 hover:bg-green-500 hover:text-white transition-colors"
-                >
-                  <LogOut className="w-4 h-4" />
-                  <span>Logout</span>
-                </button>
-              </div>
-            )}
           </div>
 
           {/* Mobile menu button */}
@@ -126,19 +93,6 @@ const Navbar: React.FC<NavbarProps> = ({ user, onLogout }) => {
             <Home className="w-5 h-5" />
             <span>{t('nav.home')}</span>
           </Link>
-          {user && (
-            <Link
-              to="/dashboard"
-              className={`flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium ${
-                isActive('/dashboard') 
-                  ? 'bg-green-800 text-white' 
-                  : 'text-green-100 hover:bg-green-600'
-              }`}
-            >
-              <BarChart3 className="w-5 h-5" />
-              <span>Dashboard</span>
-            </Link>
-          )}
           <Link
             to="/upload"
             className={`flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium ${
@@ -172,15 +126,6 @@ const Navbar: React.FC<NavbarProps> = ({ user, onLogout }) => {
             <Settings className="w-5 h-5" />
             <span>{t('nav.admin')}</span>
           </Link>
-          {user && (
-            <button
-              onClick={onLogout}
-              className="flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium text-green-100 hover:bg-green-600"
-            >
-              <LogOut className="w-5 h-5" />
-              <span>Logout</span>
-            </button>
-          )}
         </div>
       </div>
     </nav>

@@ -90,43 +90,15 @@ const UploadPage: React.FC = () => {
     setError('');
 
     try {
-      const token = localStorage.getItem('authToken');
+      const result: DetectionResult = await mockDetectDisease(selectedFile, selectedCrop, language);
       
-      if (token) {
-        // Use backend API for authenticated users
-        const formData = new FormData();
-        formData.append('image', selectedFile);
-        formData.append('cropType', selectedCrop);
-        formData.append('location', ''); // Add location if available
-        
-        const response = await fetch('/api/detections/detect', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`
-          },
-          body: formData
-        });
-        
-        const data = await response.json();
-        
-        if (data.success) {
-          const result: DetectionResult = {
-            ...data.detection,
-            language
-          };
-          navigate('/result', { state: { result } });
-        } else {
-          setError(data.error || 'Detection failed');
-        }
-      } else {
-        // Fallback to mock detection for non-authenticated users
-        const result: DetectionResult = await mockDetectDisease(selectedFile, selectedCrop, language);
-        storage.saveDetection(result);
-        navigate('/result', { state: { result } });
-      }
+      // Save to local storage
+      storage.saveDetection(result);
+      
+      // Navigate to results page with the result data
+      navigate('/result', { state: { result } });
     } catch (err) {
       setError('Failed to analyze image. Please try again.');
-    } finally {
       setIsProcessing(false);
     }
   };
