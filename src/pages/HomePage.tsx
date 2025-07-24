@@ -222,9 +222,9 @@ const HomePage: React.FC = () => {
       </section>
 
       {/* Why Sustainable Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-green-50 to-emerald-50">
+      <section className="py-20 px-4 sm:px-6 lg:px-8" style={{ background: 'linear-gradient(135deg, #F3E5AB 0%, #E8F5E9 50%, #D7CCC8 100%)' }}>
         <div className="max-w-7xl mx-auto">
-          <motion.div 
+          <motion.div
             className="text-center mb-16"
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -234,33 +234,34 @@ const HomePage: React.FC = () => {
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
               Why Sustainable?
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            <p className="text-xl text-gray-700 max-w-3xl mx-auto">
               Building a greener future through smart agriculture technology
             </p>
           </motion.div>
 
-          <motion.div 
-            className="grid md:grid-cols-2 lg:grid-cols-4 gap-8"
+          <motion.div
+            className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto"
             variants={staggerChildren}
             initial="initial"
             whileInView="animate"
             viewport={{ once: true }}
           >
-            {benefits.map((benefit, index) => (
+            {sustainabilityBenefits.map((benefit, index) => (
               <motion.div
                 key={index}
                 variants={fadeInUp}
-                className="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+                className={`${benefit.bgColor} p-8 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-white/50`}
               >
-                <div className="inline-flex p-3 rounded-lg bg-green-100 text-green-600 mb-4">
-                  <benefit.icon className="w-6 h-6" />
+                <div className={`inline-flex p-4 rounded-2xl ${benefit.iconBg} ${benefit.iconColor} mb-6`}>
+                  <benefit.icon className="w-8 h-8" />
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-3">
+                <h3 className="text-2xl font-bold text-gray-900 mb-4">
                   {benefit.title}
                 </h3>
-                <p className="text-gray-600 text-sm leading-relaxed">
+                <p className="text-gray-700 leading-relaxed text-lg">
                   {benefit.description}
                 </p>
+                <div className={`h-1 w-full bg-gradient-to-r ${benefit.color} rounded-full mt-6`}></div>
               </motion.div>
             ))}
           </motion.div>
