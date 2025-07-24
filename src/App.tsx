@@ -6,6 +6,7 @@ import HomePage from './pages/HomePage';
 import UploadPage from './pages/UploadPage';
 import ResultPage from './pages/ResultPage';
 import AboutPage from './pages/AboutPage';
+import DashboardPage from './pages/DashboardPage';
 
 
 function App() {
@@ -19,6 +20,7 @@ function App() {
             <Route path="/upload" element={<UploadPage />} />
             <Route path="/result" element={<ResultPage />} />
             <Route path="/about" element={<AboutPage />} />
+            <Route path="/dashboard" element={<DashboardPage />} />
 
           </Routes>
         </div>
