@@ -6,7 +6,7 @@ import HomePage from './pages/HomePage';
 import UploadPage from './pages/UploadPage';
 import ResultPage from './pages/ResultPage';
 import AboutPage from './pages/AboutPage';
-import AdminPage from './pages/AdminPage';
+
 
 function App() {
   return (
@@ -19,7 +19,7 @@ function App() {
             <Route path="/upload" element={<UploadPage />} />
             <Route path="/result" element={<ResultPage />} />
             <Route path="/about" element={<AboutPage />} />
-            <Route path="/admin" element={<AdminPage />} />
+
           </Routes>
         </div>
       </Router>
