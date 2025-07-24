@@ -32,6 +32,15 @@ export const storage = {
     return stored ? JSON.parse(stored) : [];
   },
 
+  // Alias methods for dashboard compatibility
+  getDetections: (): DetectionResult[] => {
+    return storage.getDetectionHistory();
+  },
+
+  saveDetections: (detections: DetectionResult[]): void => {
+    localStorage.setItem(STORAGE_KEYS.DETECTION_HISTORY, JSON.stringify(detections));
+  },
+
   // Admin Cases
   saveAdminCase: (adminCase: AdminCase): void => {
     const cases = storage.getAdminCases();
