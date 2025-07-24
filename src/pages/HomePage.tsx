@@ -55,26 +55,33 @@ const HomePage: React.FC = () => {
     }
   ];
 
-  const benefits = [
+  const sustainabilityBenefits = [
     {
       icon: Leaf,
-      title: "Eco-Friendly Solutions",
-      description: "Promote organic farming with sustainable disease management practices"
+      title: "Soil Health",
+      description: "Enhance soil fertility through organic practices and maintain microbial diversity for long-term productivity",
+      color: "from-green-500 to-emerald-600",
+      bgColor: "bg-green-50",
+      iconBg: "bg-green-100",
+      iconColor: "text-green-600"
     },
     {
-      icon: Droplets,
-      title: "Water Conservation",
-      description: "Optimize irrigation and reduce water waste through precise recommendations"
+      icon: ArrowRight,
+      title: "Cost Efficiency",
+      description: "Reduce input costs by 40% through targeted treatments and prevention strategies that save money",
+      color: "from-amber-500 to-orange-600",
+      bgColor: "bg-amber-50",
+      iconBg: "bg-amber-100",
+      iconColor: "text-amber-600"
     },
     {
       icon: Sun,
-      title: "Climate Resilience",
-      description: "Build crops that can withstand changing climate conditions"
-    },
-    {
-      icon: Shield,
-      title: "Chemical-Free Options",
-      description: "Discover natural alternatives to harmful pesticides and chemicals"
+      title: "Future Yields",
+      description: "Increase crop yields by 25% with data-driven insights that optimize growth conditions sustainably",
+      color: "from-emerald-500 to-teal-600",
+      bgColor: "bg-emerald-50",
+      iconBg: "bg-emerald-100",
+      iconColor: "text-emerald-600"
     }
   ];
 
