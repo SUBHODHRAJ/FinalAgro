@@ -8,6 +8,7 @@ import ResultPage from './pages/ResultPage';
 import AboutPage from './pages/AboutPage';
 import DashboardPage from './pages/DashboardPage';
 import HeatmapPage from './pages/HeatmapPage';
+import Footer from './components/Footer';
 
 
 function App() {
@@ -23,8 +24,8 @@ function App() {
             <Route path="/about" element={<AboutPage />} />
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/heatmap" element={<HeatmapPage />} />
-
           </Routes>
+          <Footer />
         </div>
       </Router>
     </LanguageProvider>

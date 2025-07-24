@@ -1,7 +1,9 @@
 import React from 'react';
 import { Facebook, Twitter, Instagram, Linkedin, Sprout } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const Footer: React.FC = () => {
+  const { t } = useLanguage();
   return (
     <footer className="bg-green-800 text-white py-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -12,10 +14,10 @@ const Footer: React.FC = () => {
               <div className="bg-green-600 p-2 rounded-xl">
                 <Sprout className="w-6 h-6 text-white" />
               </div>
-              <span className="text-2xl font-bold">AgroIndia</span>
+              <span className="text-2xl font-bold">{t('footer.brand')}</span>
             </div>
             <p className="text-green-100 leading-relaxed">
-              Empowering farmers with AI-powered crop disease detection for sustainable agriculture.
+              {t('footer.description')}
             </p>
             <div className="flex space-x-4">
               <a href="#" className="bg-green-700 hover:bg-green-600 p-2 rounded-lg transition-colors">
@@ -35,13 +37,13 @@ const Footer: React.FC = () => {
 
           {/* Quick Links */}
           <div className="space-y-6">
-            <h4 className="text-xl font-bold text-green-100">Quick Links</h4>
+            <h4 className="text-xl font-bold text-green-100">{t('footer.quicklinks')}</h4>
             <ul className="space-y-3">
-              <li><a href="/" className="text-green-200 hover:text-white transition-colors font-medium">Home</a></li>
-              <li><a href="/about" className="text-green-200 hover:text-white transition-colors font-medium">About</a></li>
-              <li><a href="/upload" className="text-green-200 hover:text-white transition-colors font-medium">Predict</a></li>
-              <li><a href="/dashboard" className="text-green-200 hover:text-white transition-colors font-medium">Dashboard</a></li>
-              <li><a href="/heatmap" className="text-green-200 hover:text-white transition-colors font-medium">Heatmap</a></li>
+              <li><a href="/" className="text-green-200 hover:text-white transition-colors font-medium">{t('nav.home')}</a></li>
+              <li><a href="/about" className="text-green-200 hover:text-white transition-colors font-medium">{t('nav.about')}</a></li>
+              <li><a href="/upload" className="text-green-200 hover:text-white transition-colors font-medium">{t('nav.upload')}</a></li>
+              <li><a href="/dashboard" className="text-green-200 hover:text-white transition-colors font-medium">{t('footer.dashboard')}</a></li>
+              <li><a href="/heatmap" className="text-green-200 hover:text-white transition-colors font-medium">{t('footer.heatmap')}</a></li>
             </ul>
           </div>
         </div>
@@ -49,7 +51,7 @@ const Footer: React.FC = () => {
         {/* Bottom Bar */}
         <div className="border-t border-green-700 mt-12 pt-8 text-center">
           <p className="text-green-200">
-            © 2024 AgroIndia. All rights reserved.
+            {t('footer.copyright')}
           </p>
         </div>
       </div>

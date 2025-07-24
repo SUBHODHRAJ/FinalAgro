@@ -74,7 +74,7 @@ const AboutPage: React.FC = () => {
             {t('about.title')}
           </h1>
           <p className="text-xl text-green-600 max-w-3xl mx-auto leading-relaxed">
-            Empowering farmers across India with cutting-edge AI technology to detect crop diseases and protect agricultural livelihoods.
+            {t('about.hero.subtitle')}
           </p>
         </div>
       </section>
@@ -98,21 +98,21 @@ const AboutPage: React.FC = () => {
                   <Heart className="w-6 h-6 text-red-500 mt-1" />
                   <div>
                     <h3 className="font-semibold text-green-800">Farmer-First Approach</h3>
-                    <p className="text-green-600">Designed specifically for rural farmers with simple, intuitive interfaces</p>
+                    <p className="text-green-600">{t('about.mission.farmerFirst')}</p>
                   </div>
                 </div>
                 <div className="flex items-start space-x-3">
                   <Award className="w-6 h-6 text-yellow-500 mt-1" />
                   <div>
                     <h3 className="font-semibold text-green-800">Proven Accuracy</h3>
-                    <p className="text-green-600">95%+ accuracy in disease detection across multiple crop types</p>
+                    <p className="text-green-600">{t('about.mission.accuracy')}</p>
                   </div>
                 </div>
                 <div className="flex items-start space-x-3">
                   <Globe className="w-6 h-6 text-blue-500 mt-1" />
                   <div>
                     <h3 className="font-semibold text-green-800">Local Language Support</h3>
-                    <p className="text-green-600">Available in Hindi, Tamil, Bengali, and English</p>
+                    <p className="text-green-600">{t('about.mission.languages')}</p>
                   </div>
                 </div>
               </div>
@@ -139,7 +139,7 @@ const AboutPage: React.FC = () => {
               </h2>
             </div>
             <p className="text-lg text-green-600">
-              Meet the experts behind AgroGuardian's innovative technology
+              {t('about.team.subtitle')}
             </p>
           </div>
 
@@ -213,11 +213,7 @@ const AboutPage: React.FC = () => {
 
               <div className="mt-8 p-6 bg-green-50 rounded-xl border border-green-200">
                 <h3 className="font-semibold text-green-800 mb-2">Support Hours</h3>
-                <p className="text-green-600 text-sm">
-                  Monday - Friday: 9:00 AM - 6:00 PM IST<br />
-                  Saturday: 10:00 AM - 4:00 PM IST<br />
-                  Emergency support available 24/7
-                </p>
+                <p className="text-green-600 text-sm">{t('about.contact.hours')}</p>
               </div>
             </div>
 
@@ -229,7 +225,7 @@ const AboutPage: React.FC = () => {
               
               {submitSuccess && (
                 <div className="mb-6 p-4 bg-green-100 border border-green-300 rounded-lg">
-                  <p className="text-green-700 font-medium">Message sent successfully! We'll get back to you soon.</p>
+                  <p className="text-green-700 font-medium">{t('about.contact.success')}</p>
                 </div>
               )}
 
@@ -288,7 +284,7 @@ const AboutPage: React.FC = () => {
                   {isSubmitting ? (
                     <>
                       <div className="w-5 h-5 border-2 border-gray-700 border-t-transparent rounded-full animate-spin"></div>
-                      <span>Sending...</span>
+                      <span>{t('about.contact.sending')}</span>
                     </>
                   ) : (
                     <>

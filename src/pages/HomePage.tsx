@@ -18,7 +18,6 @@ import {
   MapPin
 } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
-import Footer from '../components/Footer';
 
 const HomePage: React.FC = () => {
   const { t } = useLanguage();
@@ -40,20 +39,20 @@ const HomePage: React.FC = () => {
   const steps = [
     {
       icon: Upload,
-      title: "Upload",
-      description: "Take a photo of your crop leaf using your smartphone camera",
+      title: t('home.steps.upload.title'),
+      description: t('home.steps.upload.desc'),
       color: "bg-green-100 text-green-600"
     },
     {
       icon: Brain,
-      title: "Diagnose", 
-      description: "Our AI analyzes the image and identifies potential diseases",
+      title: t('home.steps.diagnose.title'),
+      description: t('home.steps.diagnose.desc'),
       color: "bg-blue-100 text-blue-600"
     },
     {
       icon: FileText,
-      title: "Get Remedies",
-      description: "Receive detailed treatment recommendations and prevention tips",
+      title: t('home.steps.remedies.title'),
+      description: t('home.steps.remedies.desc'),
       color: "bg-purple-100 text-purple-600"
     }
   ];
@@ -61,8 +60,8 @@ const HomePage: React.FC = () => {
   const sustainabilityBenefits = [
     {
       icon: Leaf,
-      title: "Soil Health",
-      description: "Enhance soil fertility through organic practices and maintain microbial diversity for long-term productivity",
+      title: t('home.sustainability.soil.title'),
+      description: t('home.sustainability.soil.desc'),
       color: "from-green-500 to-emerald-600",
       bgColor: "bg-green-50",
       iconBg: "bg-green-100",
@@ -70,8 +69,8 @@ const HomePage: React.FC = () => {
     },
     {
       icon: ArrowRight,
-      title: "Cost Efficiency",
-      description: "Reduce input costs by 40% through targeted treatments and prevention strategies that save money",
+      title: t('home.sustainability.cost.title'),
+      description: t('home.sustainability.cost.desc'),
       color: "from-amber-500 to-orange-600",
       bgColor: "bg-amber-50",
       iconBg: "bg-amber-100",
@@ -79,8 +78,8 @@ const HomePage: React.FC = () => {
     },
     {
       icon: Sun,
-      title: "Future Yields",
-      description: "Increase crop yields by 25% with data-driven insights that optimize growth conditions sustainably",
+      title: t('home.sustainability.yield.title'),
+      description: t('home.sustainability.yield.desc'),
       color: "from-emerald-500 to-teal-600",
       bgColor: "bg-emerald-50",
       iconBg: "bg-emerald-100",
@@ -110,14 +109,14 @@ const HomePage: React.FC = () => {
             transition={{ duration: 0.8 }}
           >
             <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
-              <span className="block text-black">AgroIndia</span>
+              <span className="block text-black">{t('footer.brand')}</span>
               <motion.span
                 className="block text-green-800"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.5, duration: 0.8 }}
               >
-                Smart Farming
+                {t('home.hero.smartFarming')}
               </motion.span>
             </h1>
 
@@ -127,7 +126,7 @@ const HomePage: React.FC = () => {
               animate={{ opacity: 1 }}
               transition={{ delay: 0.7, duration: 0.8 }}
             >
-              Revolutionizing agriculture with AI-powered crop disease detection for a sustainable future
+              {t('home.hero.subtitle')}
             </motion.p>
 
             <motion.div
@@ -140,7 +139,7 @@ const HomePage: React.FC = () => {
                 className="inline-flex items-center space-x-3 bg-white text-green-600 hover:bg-green-50 font-bold py-4 px-8 rounded-full text-lg transition-all duration-300 transform hover:scale-105 shadow-2xl hover:shadow-3xl"
               >
                 <Camera className="w-6 h-6" />
-                <span>Predict Now</span>
+                <span>{t('home.hero.cta')}</span>
                 <ArrowRight className="w-5 h-5" />
               </Link>
             </motion.div>
@@ -180,10 +179,10 @@ const HomePage: React.FC = () => {
             viewport={{ once: true }}
           >
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-              How It Works
+              {t('home.how.title')}
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Get crop disease diagnosis in three simple steps
+              {t('home.how.subtitle')}
             </p>
           </motion.div>
 
@@ -235,10 +234,10 @@ const HomePage: React.FC = () => {
             viewport={{ once: true }}
           >
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-              Why Sustainable?
+              {t('home.sustainability.title')}
             </h2>
             <p className="text-xl text-gray-700 max-w-3xl mx-auto">
-              Building a greener future through smart agriculture technology
+              {t('home.sustainability.subtitle')}
             </p>
           </motion.div>
 
@@ -291,7 +290,7 @@ const HomePage: React.FC = () => {
               >
                 95%
               </motion.div>
-              <div className="text-green-100 text-lg">Accuracy Rate</div>
+              <div className="text-green-100 text-lg">{t('home.stats.accuracy')}</div>
             </div>
             <div className="text-white">
               <motion.div 
@@ -303,7 +302,7 @@ const HomePage: React.FC = () => {
               >
                 50+
               </motion.div>
-              <div className="text-green-100 text-lg">Diseases Detected</div>
+              <div className="text-green-100 text-lg">{t('home.stats.diseases')}</div>
             </div>
             <div className="text-white">
               <motion.div 
@@ -315,7 +314,7 @@ const HomePage: React.FC = () => {
               >
                 10K+
               </motion.div>
-              <div className="text-green-100 text-lg">Farmers Helped</div>
+              <div className="text-green-100 text-lg">{t('home.stats.farmers')}</div>
             </div>
             <div className="text-white">
               <motion.div 
@@ -327,7 +326,7 @@ const HomePage: React.FC = () => {
               >
                 24/7
               </motion.div>
-              <div className="text-green-100 text-lg">Support Available</div>
+              <div className="text-green-100 text-lg">{t('home.stats.support')}</div>
             </div>
           </motion.div>
         </div>
@@ -347,17 +346,17 @@ const HomePage: React.FC = () => {
               <Heart className="w-8 h-8" />
             </div>
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
-              Ready to Transform Your Farming?
+              {t('home.cta.title')}
             </h2>
             <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-              Join thousands of farmers using AgroIndia for sustainable crop management and disease prevention.
+              {t('home.cta.subtitle')}
             </p>
             <Link
               to="/upload"
               className="inline-flex items-center space-x-3 bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-8 rounded-full text-lg transition-all duration-300 transform hover:scale-105 shadow-xl"
             >
               <Camera className="w-6 h-6" />
-              <span>Start Your Journey</span>
+              <span>{t('home.cta.button')}</span>
               <ArrowRight className="w-5 h-5" />
             </Link>
           </div>
@@ -366,7 +365,6 @@ const HomePage: React.FC = () => {
 
 
 
-      <Footer />
     </div>
   );
 };
