@@ -81,12 +81,7 @@ const Navbar: React.FC = () => {
               <span>Predict</span>
             </Link>
 
-            <a
-              href="#contact"
-              className="text-gray-600 hover:text-green-600 px-4 py-2 rounded-full text-sm font-semibold transition-all duration-300 hover:bg-green-50"
-            >
-              Contact
-            </a>
+
 
             <LanguageSelector />
           </div>
@@ -164,13 +159,7 @@ const Navbar: React.FC = () => {
               <span>Predict</span>
             </Link>
 
-            <a
-              href="#contact"
-              onClick={toggleMobileMenu}
-              className="flex items-center space-x-3 px-4 py-3 rounded-xl text-base font-medium text-gray-600 hover:bg-green-50 hover:text-green-600 transition-all duration-300"
-            >
-              <span>Contact</span>
-            </a>
+
           </div>
         </div>
       )}
