@@ -7,6 +7,7 @@ import UploadPage from './pages/UploadPage';
 import ResultPage from './pages/ResultPage';
 import AboutPage from './pages/AboutPage';
 import DashboardPage from './pages/DashboardPage';
+import HeatmapPage from './pages/HeatmapPage';
 
 
 function App() {
@@ -21,6 +22,7 @@ function App() {
             <Route path="/result" element={<ResultPage />} />
             <Route path="/about" element={<AboutPage />} />
             <Route path="/dashboard" element={<DashboardPage />} />
+            <Route path="/heatmap" element={<HeatmapPage />} />
 
           </Routes>
         </div>
