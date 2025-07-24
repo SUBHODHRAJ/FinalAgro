@@ -110,9 +110,9 @@ const HomePage: React.FC = () => {
             transition={{ duration: 0.8 }}
           >
             <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
-              <span className="block">AgroIndia</span>
-              <motion.span 
-                className="block text-green-200"
+              <span className="block text-black">AgroIndia</span>
+              <motion.span
+                className="block text-green-800"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.5, duration: 0.8 }}
@@ -120,9 +120,9 @@ const HomePage: React.FC = () => {
                 Smart Farming
               </motion.span>
             </h1>
-            
-            <motion.p 
-              className="text-xl md:text-2xl text-green-50 mb-8 max-w-3xl mx-auto leading-relaxed"
+
+            <motion.p
+              className="text-xl md:text-2xl text-black mb-8 max-w-3xl mx-auto leading-relaxed"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.7, duration: 0.8 }}
