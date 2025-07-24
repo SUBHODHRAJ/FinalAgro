@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Sprout, Home, Upload, Info, Menu, X } from 'lucide-react';
+import { Sprout, Home, Upload, Info, Menu, X, BarChart3 } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import LanguageSelector from './LanguageSelector';
 
@@ -48,13 +48,25 @@ const Navbar: React.FC = () => {
             <Link
               to="/about"
               className={`flex items-center space-x-2 px-4 py-2 rounded-full text-sm font-semibold transition-all duration-300 ${
-                isActive('/about') 
-                  ? 'bg-green-100 text-green-700 shadow-md' 
+                isActive('/about')
+                  ? 'bg-green-100 text-green-700 shadow-md'
                   : 'text-gray-600 hover:bg-green-50 hover:text-green-600'
               }`}
             >
               <Info className="w-4 h-4" />
               <span>About</span>
+            </Link>
+
+            <Link
+              to="/dashboard"
+              className={`flex items-center space-x-2 px-4 py-2 rounded-full text-sm font-semibold transition-all duration-300 ${
+                isActive('/dashboard')
+                  ? 'bg-green-100 text-green-700 shadow-md'
+                  : 'text-gray-600 hover:bg-green-50 hover:text-green-600'
+              }`}
+            >
+              <BarChart3 className="w-4 h-4" />
+              <span>Dashboard</span>
             </Link>
 
             <Link
