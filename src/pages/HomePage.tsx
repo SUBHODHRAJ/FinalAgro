@@ -1,18 +1,21 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { 
-  Upload, 
-  Search, 
-  FileText, 
-  Leaf, 
-  Droplets, 
-  Sun, 
+import {
+  Upload,
+  Search,
+  FileText,
+  Leaf,
+  Droplets,
+  Sun,
   Shield,
   ArrowRight,
   Camera,
   Brain,
-  Heart
+  Heart,
+  Mail,
+  Phone,
+  MapPin
 } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import Footer from '../components/Footer';
