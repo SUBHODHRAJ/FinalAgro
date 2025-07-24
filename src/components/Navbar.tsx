@@ -129,13 +129,26 @@ const Navbar: React.FC = () => {
               to="/about"
               onClick={toggleMobileMenu}
               className={`flex items-center space-x-3 px-4 py-3 rounded-xl text-base font-medium transition-all duration-300 ${
-                isActive('/about') 
-                  ? 'bg-green-100 text-green-700' 
+                isActive('/about')
+                  ? 'bg-green-100 text-green-700'
                   : 'text-gray-600 hover:bg-green-50 hover:text-green-600'
               }`}
             >
               <Info className="w-5 h-5" />
               <span>About</span>
+            </Link>
+
+            <Link
+              to="/dashboard"
+              onClick={toggleMobileMenu}
+              className={`flex items-center space-x-3 px-4 py-3 rounded-xl text-base font-medium transition-all duration-300 ${
+                isActive('/dashboard')
+                  ? 'bg-green-100 text-green-700'
+                  : 'text-gray-600 hover:bg-green-50 hover:text-green-600'
+              }`}
+            >
+              <BarChart3 className="w-5 h-5" />
+              <span>Dashboard</span>
             </Link>
 
             <Link
