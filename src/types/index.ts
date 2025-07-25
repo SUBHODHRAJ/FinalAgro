@@ -2,12 +2,20 @@ export interface DetectionResult {
   id: string;
   crop: string;
   disease: string;
-  confidence: number;
   remedy: string;
+  identification: string;
   preventiveMeasures: string[];
   timestamp: string;
   imageUrl?: string;
+  Ref_images?: {
+    healthy?: string;
+    early?: string;
+    moderate?: string;
+    severe?: string;
+  };
+  location : string;
   language: string;
+  confidence?: number;
 }
 
 export interface CropType {

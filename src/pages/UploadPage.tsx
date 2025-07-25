@@ -1,5 +1,4 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useState as useStateHook } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Upload, 
@@ -8,10 +7,12 @@ import {
   Loader2,
   Check,
   X,
-  MessageCircle
+  MessageCircle,
+  Sparkles,
+  Zap,
+  RefreshCw
 } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
-import { mockDetectDisease } from '../utils/mockAI';
 import { storage } from '../utils/storage';
 import { DetectionResult } from '../types';
 
@@ -31,60 +32,23 @@ const UploadPage: React.FC = () => {
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
-  
+
   const [selectedCrop, setSelectedCrop] = useState<string>('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string>('');
   const [dragActive, setDragActive] = useState(false);
-  const [isBackCamera, setIsBackCamera] = useState(true);
-  const [showCamera, setShowCamera] = useState(false);
-  const [videoStream, setVideoStream] = useState<MediaStream | null>(null);
-  const [facingMode, setFacingMode] = useState<'environment' | 'user'>('environment');
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-
-  useEffect(() => {
-    if (showCamera) {
-      (async () => {
-        try {
-          const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode } });
-          setVideoStream(stream);
-          if (videoRef.current) {
-            videoRef.current.srcObject = stream;
-          }
-        } catch (err) {
-          setError('Unable to access camera');
-          setShowCamera(false);
-        }
-      })();
-    } else {
-      if (videoStream) {
-        videoStream.getTracks().forEach(track => track.stop());
-        setVideoStream(null);
-      }
-    }
-    // Cleanup on unmount
-    return () => {
-      if (videoStream) {
-        videoStream.getTracks().forEach(track => track.stop());
-      }
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [showCamera, facingMode]);
 
   const handleFileSelect = (file: File) => {
     if (!file.type.startsWith('image/')) {
       setError('Please select a valid image file');
       return;
     }
-
-    if (file.size > 5 * 1024 * 1024) { // 5MB limit
+    if (file.size > 5 * 1024 * 1024) {
       setError('File size must be less than 5MB');
       return;
     }
-
     setSelectedFile(file);
     setPreviewUrl(URL.createObjectURL(file));
     setError('');
@@ -94,7 +58,6 @@ const UploadPage: React.FC = () => {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
-
     const files = Array.from(e.dataTransfer.files);
     if (files.length > 0) {
       handleFileSelect(files[0]);
@@ -113,49 +76,33 @@ const UploadPage: React.FC = () => {
     setDragActive(false);
   };
 
-  const handleCapture = () => {
-    if (videoRef.current && canvasRef.current) {
-      const video = videoRef.current;
-      const canvas = canvasRef.current;
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      const ctx = canvas.getContext('2d');
-      if (ctx) {
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-        canvas.toBlob(blob => {
-          if (blob) {
-            const file = new File([blob], 'captured.jpg', { type: 'image/jpeg' });
-            handleFileSelect(file);
-            setShowCamera(false);
-          }
-        }, 'image/jpeg');
-      }
-    }
-  };
-
-  const handleFlipCamera = () => {
-    setFacingMode(facingMode === 'environment' ? 'user' : 'environment');
-  };
-
   const handleDetection = async () => {
-    if (!selectedFile || !selectedCrop) {
-      setError('Please select both a crop type and an image');
+    if (!selectedFile) {
+      setError('Please select an image');
       return;
     }
-
     setIsProcessing(true);
     setError('');
 
+    const formData = new FormData();
+    formData.append("file", selectedFile);
+
     try {
-      const result: DetectionResult = await mockDetectDisease(selectedFile, selectedCrop, language);
-      
-      // Save to local storage
-      storage.saveDetection(result);
-      
-      // Navigate to results page with the result data
-      navigate('/result', { state: { result } });
+      const response = await fetch("http://localhost:8000/predict", {
+        method: "POST",
+        body: formData,
+      });
+      const result = await response.json();
+      const detectionResult: DetectionResult = {
+        ...result,
+        id: Date.now().toString(),
+        imageUrl: URL.createObjectURL(selectedFile),
+        language,
+      };
+      storage.saveDetection(detectionResult);
+      navigate("/result", { state: { result: detectionResult } });
     } catch (err) {
-      setError('Failed to analyze image. Please try again.');
+      setError("Failed to analyze image. Please try again.");
       setIsProcessing(false);
     }
   };
@@ -173,32 +120,12 @@ const UploadPage: React.FC = () => {
         </div>
 
         <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8">
-          {/* Crop Selection */}
-          <div className="mb-8">
-            <label className="block text-lg font-semibold text-green-800 mb-4">
-              {t('upload.crop.label')}
-            </label>
-            <select
-              value={selectedCrop}
-              onChange={(e) => setSelectedCrop(e.target.value)}
-              className="w-full p-4 border-2 border-green-200 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-colors text-lg"
-            >
-              <option value="">{t('upload.crop.placeholder')}</option>
-              {crops.map((crop) => (
-                <option key={crop.id} value={crop.id}>
-                  {crop.icon} {t(crop.name)}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Image Upload Area */}
+          {/* Upload Form */}
           <div className="mb-8">
             <label className="block text-lg font-semibold text-green-800 mb-4">
               Upload Crop Image
             </label>
-            
-            {/* Drag & Drop Area */}
+
             <div
               className={`relative border-2 border-dashed rounded-xl p-8 text-center transition-all duration-300 ${
                 dragActive 
@@ -253,123 +180,36 @@ const UploadPage: React.FC = () => {
               className="hidden"
             />
 
-            <input
-              ref={cameraInputRef}
-              type="file"
-              accept="image/*"
-              capture={isBackCamera ? "environment" : "user"}
-              onChange={(e) => e.target.files?.[0] && handleFileSelect(e.target.files[0])}
-              className="hidden"
-            />
-
-            {/* Upload Buttons */}
-            <div className="mt-6">
-              {!selectedFile ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <button
-                    onClick={() => setShowCamera(true)}
-                    className="flex items-center justify-center space-x-2 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
-                    type="button"
-                  >
-                    <Camera className="w-5 h-5" />
-                    <span>{t('upload.camera')}</span>
-                  </button>
-                  <button
-                    onClick={() => fileInputRef.current?.click()}
-                    className="flex items-center justify-center space-x-2 bg-green-100 hover:bg-green-200 text-green-700 font-semibold py-3 px-6 rounded-lg transition-colors border border-green-300"
-                    type="button"
-                  >
-                    <ImageIcon className="w-5 h-5" />
-                    <span>{t('upload.gallery')}</span>
-                  </button>
+            {/* Detect Button */}
+            <button
+              onClick={handleDetection}
+              disabled={!selectedFile || isProcessing}
+              className={`w-full mt-6 py-4 px-6 rounded-xl font-semibold text-lg transition-all duration-300 ${
+                !selectedFile || isProcessing
+                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  : 'bg-green-600 hover:bg-green-700 text-white shadow-lg hover:shadow-xl transform hover:-translate-y-1'
+              }`}
+            >
+              {isProcessing ? (
+                <div className="flex items-center justify-center space-x-2">
+                  <Loader2 className="w-6 h-6 animate-spin" />
+                  <span>{t('upload.processing')}</span>
                 </div>
               ) : (
-                <button
-                  onClick={() => {
-                    setSelectedFile(null);
-                    setPreviewUrl('');
-                    setError('');
-                  }}
-                  className="w-full flex items-center justify-center space-x-2 bg-orange-600 hover:bg-orange-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
-                  type="button"
-                >
-                  <Upload className="w-5 h-5" />
-                  <span>Re-upload Photo</span>
-                </button>
+                <div className="flex items-center justify-center space-x-2">
+                  <Check className="w-6 h-6" />
+                  <span>{t('upload.detect')}</span>
+                </div>
               )}
-            </div>
-          </div>
+            </button>
 
-          {/* Error Message */}
-          {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-red-600">{error}</p>
-            </div>
-          )}
-
-          {/* Detect Button */}
-          <button
-            onClick={handleDetection}
-            disabled={!selectedFile || !selectedCrop || isProcessing}
-            className={`w-full py-4 px-6 rounded-xl font-semibold text-lg transition-all duration-300 ${
-              !selectedFile || !selectedCrop || isProcessing
-                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                : 'bg-green-600 hover:bg-green-700 text-white shadow-lg hover:shadow-xl transform hover:-translate-y-1'
-            }`}
-          >
-            {isProcessing ? (
-              <div className="flex items-center justify-center space-x-2">
-                <Loader2 className="w-6 h-6 animate-spin" />
-                <span>{t('upload.processing')}</span>
-              </div>
-            ) : (
-              <div className="flex items-center justify-center space-x-2">
-                <Check className="w-6 h-6" />
-                <span>{t('upload.detect')}</span>
+            {error && (
+              <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-red-600">{error}</p>
               </div>
             )}
-          </button>
-        </div>
-
-        {/* Camera Modal Overlay */}
-        {showCamera && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80">
-            <div className="relative bg-white rounded-lg shadow-lg p-4 flex flex-col items-center">
-              <video
-                ref={videoRef}
-                autoPlay
-                playsInline
-                className="w-[320px] h-[240px] bg-black rounded-lg mb-4"
-              />
-              <canvas ref={canvasRef} className="hidden" />
-              <div className="flex flex-col space-y-3 mt-4 w-full">
-                <div className="flex justify-center space-x-3">
-                  <button
-                    onClick={handleFlipCamera}
-                    className="px-6 py-3 bg-green-200 text-green-800 rounded-lg font-semibold hover:bg-green-300 transition-colors"
-                    type="button"
-                  >
-                    {facingMode === 'environment' ? 'Flip to Front Camera' : 'Flip to Back Camera'}
-                  </button>
-                  <button
-                    onClick={handleCapture}
-                    className="px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors"
-                    type="button"
-                  >
-                    Capture Photo
-                  </button>
-                </div>
-                <button
-                  onClick={() => setShowCamera(false)}
-                  className="px-6 py-2 bg-red-500 text-white rounded-lg font-semibold hover:bg-red-600 transition-colors"
-                  type="button"
-                >
-                  Close Camera
-                </button>
-              </div>
-            </div>
           </div>
-        )}
+        </div>
       </div>
     </div>
   );
