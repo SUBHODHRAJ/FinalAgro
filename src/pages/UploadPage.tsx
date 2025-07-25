@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useState as useStateHook } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Upload, 
   Camera, 
@@ -8,7 +9,10 @@ import {
   Loader2,
   Check,
   X,
-  MessageCircle
+  MessageCircle,
+  Sparkles,
+  Zap,
+  RefreshCw
 } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { mockDetectDisease } from '../utils/mockAI';
@@ -42,6 +46,8 @@ const UploadPage: React.FC = () => {
   const [showCamera, setShowCamera] = useState(false);
   const [videoStream, setVideoStream] = useState<MediaStream | null>(null);
   const [facingMode, setFacingMode] = useState<'environment' | 'user'>('environment');
+  const [uploadSuccess, setUploadSuccess] = useState(false);
+  const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -88,6 +94,11 @@ const UploadPage: React.FC = () => {
     setSelectedFile(file);
     setPreviewUrl(URL.createObjectURL(file));
     setError('');
+    setUploadSuccess(true);
+    setShowSuccessAnimation(true);
+    
+    // Hide success animation after 2 seconds
+    setTimeout(() => setShowSuccessAnimation(false), 2000);
   };
 
   const handleDrop = (e: React.DragEvent) => {
@@ -160,28 +171,137 @@ const UploadPage: React.FC = () => {
     }
   };
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-50 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-green-800 mb-4">
-            {t('upload.title')}
-          </h1>
-          <p className="text-lg text-green-600">
-            {t('upload.subtitle')}
-          </p>
-        </div>
+  // Animation variants
+  const containerVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: { 
+        duration: 0.6,
+        staggerChildren: 0.1
+      }
+    }
+  };
 
-        <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8">
-          {/* Crop Selection */}
-          <div className="mb-8">
-            <label className="block text-lg font-semibold text-green-800 mb-4">
-              {t('upload.crop.label')}
-            </label>
-            <select
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0 }
+  };
+
+  const successVariants = {
+    hidden: { scale: 0, opacity: 0 },
+    visible: { 
+      scale: 1, 
+      opacity: 1,
+      transition: { 
+        type: "spring",
+        stiffness: 500,
+        damping: 30
+      }
+    },
+    exit: { 
+      scale: 0, 
+      opacity: 0,
+      transition: { duration: 0.3 }
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 py-8 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <motion.div
+          className="absolute -top-4 -left-4 w-72 h-72 bg-gradient-to-br from-green-200/30 to-emerald-200/30 rounded-full blur-3xl"
+          animate={{
+            x: [0, 100, 0],
+            y: [0, -50, 0],
+            scale: [1, 1.1, 1],
+          }}
+          transition={{
+            duration: 20,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        />
+        <motion.div
+          className="absolute -bottom-4 -right-4 w-96 h-96 bg-gradient-to-tl from-teal-200/30 to-green-200/30 rounded-full blur-3xl"
+          animate={{
+            x: [0, -80, 0],
+            y: [0, 60, 0],
+            scale: [1, 0.9, 1],
+          }}
+          transition={{
+            duration: 25,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        />
+      </div>
+
+      <motion.div 
+        className="max-w-4xl mx-auto relative z-10"
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+      >
+        {/* Header with enhanced animations */}
+        <motion.div 
+          className="text-center mb-8"
+          variants={itemVariants}
+        >
+          <motion.h1 
+            className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-green-800 via-emerald-700 to-teal-700 bg-clip-text text-transparent mb-4"
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.8, type: "spring", bounce: 0.4 }}
+          >
+            {t('upload.title')}
+          </motion.h1>
+          <motion.p 
+            className="text-lg text-green-600"
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.3, duration: 0.6 }}
+          >
+            {t('upload.subtitle')}
+          </motion.p>
+        </motion.div>
+
+        <motion.div 
+          className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/50 p-6 md:p-8 relative overflow-hidden"
+          variants={itemVariants}
+          whileHover={{ 
+            boxShadow: "0 25px 50px rgba(0, 0, 0, 0.1)",
+            scale: 1.01
+          }}
+          transition={{ duration: 0.3 }}
+        >
+          {/* Subtle gradient overlay */}
+          <div className="absolute inset-0 bg-gradient-to-br from-green-50/50 via-transparent to-emerald-50/50 pointer-events-none" />
+          
+          {/* Crop Selection with enhanced styling */}
+          <motion.div 
+            className="mb-8 relative z-10"
+            variants={itemVariants}
+          >
+            <motion.label 
+              className="block text-lg font-semibold text-green-800 mb-4 flex items-center space-x-2"
+              whileHover={{ x: 5 }}
+              transition={{ type: "spring", stiffness: 400 }}
+            >
+              <Sparkles className="w-5 h-5 text-green-600" />
+              <span>{t('upload.crop.label')}</span>
+            </motion.label>
+            <motion.select
               value={selectedCrop}
               onChange={(e) => setSelectedCrop(e.target.value)}
-              className="w-full p-4 border-2 border-green-200 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-colors text-lg"
+              className="w-full p-4 border-2 border-green-200 rounded-2xl focus:border-green-500 focus:ring-4 focus:ring-green-200/50 transition-all duration-300 text-lg bg-white/90 backdrop-blur-sm shadow-lg hover:shadow-xl"
+              whileFocus={{ scale: 1.02 }}
+              whileHover={{ 
+                borderColor: "#10b981",
+                boxShadow: "0 10px 25px rgba(16, 185, 129, 0.15)"
+              }}
             >
               <option value="">{t('upload.crop.placeholder')}</option>
               {crops.map((crop) => (
@@ -189,61 +309,139 @@ const UploadPage: React.FC = () => {
                   {crop.icon} {t(crop.name)}
                 </option>
               ))}
-            </select>
-          </div>
+            </motion.select>
+          </motion.div>
 
-          {/* Image Upload Area */}
-          <div className="mb-8">
-            <label className="block text-lg font-semibold text-green-800 mb-4">
-              Upload Crop Image
-            </label>
+          {/* Enhanced Image Upload Area */}
+          <motion.div 
+            className="mb-8 relative z-10"
+            variants={itemVariants}
+          >
+            <motion.label 
+              className="block text-lg font-semibold text-green-800 mb-4 flex items-center space-x-2"
+              whileHover={{ x: 5 }}
+              transition={{ type: "spring", stiffness: 400 }}
+            >
+              <Upload className="w-5 h-5 text-green-600" />
+              <span>Upload Crop Image</span>
+            </motion.label>
             
-            {/* Drag & Drop Area */}
-            <div
-              className={`relative border-2 border-dashed rounded-xl p-8 text-center transition-all duration-300 ${
+            {/* Enhanced Drag & Drop Area */}
+            <motion.div
+              className={`relative border-2 border-dashed rounded-2xl p-8 text-center transition-all duration-500 cursor-pointer overflow-hidden ${
                 dragActive 
-                  ? 'border-green-500 bg-green-50' 
+                  ? 'border-green-500 bg-gradient-to-br from-green-50 to-emerald-50 scale-105' 
                   : selectedFile 
-                    ? 'border-green-400 bg-green-25' 
-                    : 'border-green-200 hover:border-green-400 hover:bg-green-25'
+                    ? 'border-green-400 bg-gradient-to-br from-green-25 to-emerald-25' 
+                    : 'border-green-200 hover:border-green-400 bg-gradient-to-br from-white to-green-50/30'
               }`}
               onDrop={handleDrop}
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
               onClick={() => fileInputRef.current?.click()}
+              whileHover={{ 
+                scale: 1.02,
+                boxShadow: "0 20px 40px rgba(16, 185, 129, 0.1)"
+              }}
+              whileTap={{ scale: 0.98 }}
+              animate={dragActive ? { 
+                borderColor: "#10b981",
+                backgroundColor: "rgba(16, 185, 129, 0.05)"
+              } : {}}
             >
+              {/* Animated background pattern */}
+              <motion.div
+                className="absolute inset-0 opacity-5"
+                style={{
+                  backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%2310b981' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='4'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
+                }}
+                animate={dragActive ? { scale: 1.1, opacity: 0.1 } : { scale: 1, opacity: 0.05 }}
+              />
+
               {previewUrl ? (
-                <div className="relative">
-                  <img
+                <motion.div 
+                  className="relative"
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.5, type: "spring" }}
+                >
+                  <motion.img
                     src={previewUrl}
                     alt="Preview"
-                    className="max-w-full max-h-64 mx-auto rounded-lg shadow-md"
+                    className="max-w-full max-h-64 mx-auto rounded-xl shadow-2xl border-4 border-white"
+                    whileHover={{ scale: 1.05, rotate: 1 }}
+                    transition={{ type: "spring", stiffness: 300 }}
                   />
-                  <button
+                  <motion.button
                     onClick={(e) => {
                       e.stopPropagation();
                       setSelectedFile(null);
                       setPreviewUrl('');
+                      setUploadSuccess(false);
                     }}
-                    className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full hover:bg-red-600 transition-colors"
+                    className="absolute -top-2 -right-2 bg-gradient-to-r from-red-500 to-red-600 text-white p-2 rounded-full hover:from-red-600 hover:to-red-700 transition-all duration-300 shadow-lg"
+                    whileHover={{ scale: 1.1, rotate: 90 }}
+                    whileTap={{ scale: 0.9 }}
                   >
                     <X className="w-4 h-4" />
-                  </button>
-                </div>
+                  </motion.button>
+                  
+                  {/* Success checkmark animation */}
+                  <AnimatePresence>
+                    {showSuccessAnimation && (
+                      <motion.div
+                        className="absolute inset-0 flex items-center justify-center"
+                        variants={successVariants}
+                        initial="hidden"
+                        animate="visible"
+                        exit="exit"
+                      >
+                        <div className="bg-green-500 text-white p-4 rounded-full shadow-2xl">
+                          <Check className="w-8 h-8" />
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </motion.div>
               ) : (
-                <div className="space-y-4">
-                  <div className="flex justify-center">
-                    <Upload className="w-16 h-16 text-green-400" />
-                  </div>
-                  <div className="text-lg text-green-600">
+                <motion.div 
+                  className="space-y-4"
+                  animate={dragActive ? { scale: 1.05 } : { scale: 1 }}
+                >
+                  <motion.div 
+                    className="flex justify-center"
+                    animate={dragActive ? { 
+                      y: [-5, 5, -5],
+                      rotate: [0, 5, -5, 0]
+                    } : {}}
+                    transition={{ duration: 0.5, repeat: dragActive ? Infinity : 0 }}
+                  >
+                    <div className="relative">
+                      <Upload className="w-16 h-16 text-green-400" />
+                      {dragActive && (
+                        <motion.div
+                          className="absolute inset-0 bg-green-400 rounded-full opacity-20"
+                          animate={{ scale: [1, 1.5, 1], opacity: [0.2, 0, 0.2] }}
+                          transition={{ duration: 1, repeat: Infinity }}
+                        />
+                      )}
+                    </div>
+                  </motion.div>
+                  <motion.div 
+                    className="text-lg text-green-600 font-medium"
+                    animate={dragActive ? { scale: 1.05 } : { scale: 1 }}
+                  >
                     {t('upload.drop.text')}
-                  </div>
-                  <div className="text-sm text-green-500">
+                  </motion.div>
+                  <motion.div 
+                    className="text-sm text-green-500"
+                    animate={dragActive ? { opacity: 0.7 } : { opacity: 1 }}
+                  >
                     {t('upload.drop.formats')}
-                  </div>
-                </div>
+                  </motion.div>
+                </motion.div>
               )}
-            </div>
+            </motion.div>
 
             <input
               ref={fileInputRef}
@@ -262,115 +460,249 @@ const UploadPage: React.FC = () => {
               className="hidden"
             />
 
-            {/* Upload Buttons */}
-            <div className="mt-6">
+            {/* Enhanced Upload Buttons */}
+            <motion.div 
+              className="mt-6"
+              variants={itemVariants}
+            >
               {!selectedFile ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <button
+                  <motion.button
                     onClick={() => setShowCamera(true)}
-                    className="flex items-center justify-center space-x-2 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
+                    className="flex items-center justify-center space-x-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold py-4 px-6 rounded-2xl transition-all duration-300 shadow-lg hover:shadow-2xl group relative overflow-hidden"
                     type="button"
+                    whileHover={{ 
+                      scale: 1.05,
+                      y: -2
+                    }}
+                    whileTap={{ scale: 0.95 }}
                   >
-                    <Camera className="w-5 h-5" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-white/0 to-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+                    <motion.div
+                      animate={{ rotate: [0, 5, -5, 0] }}
+                      transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                    >
+                      <Camera className="w-5 h-5" />
+                    </motion.div>
                     <span>{t('upload.camera')}</span>
-                  </button>
-                  <button
+                  </motion.button>
+                  
+                  <motion.button
                     onClick={() => fileInputRef.current?.click()}
-                    className="flex items-center justify-center space-x-2 bg-green-100 hover:bg-green-200 text-green-700 font-semibold py-3 px-6 rounded-lg transition-colors border border-green-300"
+                    className="flex items-center justify-center space-x-3 bg-gradient-to-r from-green-100 to-emerald-100 hover:from-green-200 hover:to-emerald-200 text-green-700 font-semibold py-4 px-6 rounded-2xl transition-all duration-300 border-2 border-green-300 hover:border-green-400 shadow-lg hover:shadow-2xl group relative overflow-hidden"
                     type="button"
+                    whileHover={{ 
+                      scale: 1.05,
+                      y: -2
+                    }}
+                    whileTap={{ scale: 0.95 }}
                   >
-                    <ImageIcon className="w-5 h-5" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-green-200/0 to-green-200/50 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+                    <motion.div
+                      whileHover={{ rotate: 360 }}
+                      transition={{ duration: 0.5 }}
+                    >
+                      <ImageIcon className="w-5 h-5" />
+                    </motion.div>
                     <span>{t('upload.gallery')}</span>
-                  </button>
+                  </motion.button>
                 </div>
               ) : (
-                <button
+                <motion.button
                   onClick={() => {
                     setSelectedFile(null);
                     setPreviewUrl('');
                     setError('');
+                    setUploadSuccess(false);
                   }}
-                  className="w-full flex items-center justify-center space-x-2 bg-orange-600 hover:bg-orange-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
+                  className="w-full flex items-center justify-center space-x-3 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-semibold py-4 px-6 rounded-2xl transition-all duration-300 shadow-lg hover:shadow-2xl group relative overflow-hidden"
                   type="button"
+                  whileHover={{ 
+                    scale: 1.02,
+                    y: -2
+                  }}
+                  whileTap={{ scale: 0.98 }}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5 }}
                 >
-                  <Upload className="w-5 h-5" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-white/0 to-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+                  <motion.div
+                    animate={{ rotate: [0, 180, 360] }}
+                    transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                  >
+                    <RefreshCw className="w-5 h-5" />
+                  </motion.div>
                   <span>Re-upload Photo</span>
-                </button>
+                </motion.button>
               )}
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
 
-          {/* Error Message */}
-          {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-red-600">{error}</p>
-            </div>
-          )}
+          {/* Enhanced Error Message */}
+          <AnimatePresence>
+            {error && (
+              <motion.div 
+                className="mb-6 p-4 bg-gradient-to-r from-red-50 to-pink-50 border-2 border-red-200 rounded-2xl shadow-lg"
+                initial={{ opacity: 0, y: -20, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -20, scale: 0.95 }}
+                transition={{ duration: 0.3 }}
+              >
+                <motion.p 
+                  className="text-red-600 font-medium flex items-center space-x-2"
+                  initial={{ x: -10 }}
+                  animate={{ x: 0 }}
+                >
+                  <X className="w-5 h-5" />
+                  <span>{error}</span>
+                </motion.p>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
-          {/* Detect Button */}
-          <button
+          {/* Enhanced Detect Button */}
+          <motion.button
             onClick={handleDetection}
             disabled={!selectedFile || !selectedCrop || isProcessing}
-            className={`w-full py-4 px-6 rounded-xl font-semibold text-lg transition-all duration-300 ${
+            className={`w-full py-5 px-6 rounded-2xl font-bold text-lg transition-all duration-500 relative overflow-hidden group ${
               !selectedFile || !selectedCrop || isProcessing
-                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                : 'bg-green-600 hover:bg-green-700 text-white shadow-lg hover:shadow-xl transform hover:-translate-y-1'
+                ? 'bg-gradient-to-r from-gray-300 to-gray-400 text-gray-500 cursor-not-allowed'
+                : 'bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 hover:from-green-700 hover:via-emerald-700 hover:to-teal-700 text-white shadow-2xl hover:shadow-3xl'
             }`}
+            whileHover={!(!selectedFile || !selectedCrop || isProcessing) ? { 
+              scale: 1.02,
+              y: -3,
+              boxShadow: "0 25px 50px rgba(16, 185, 129, 0.3)"
+            } : {}}
+            whileTap={!(!selectedFile || !selectedCrop || isProcessing) ? { scale: 0.98 } : {}}
+            variants={itemVariants}
           >
-            {isProcessing ? (
-              <div className="flex items-center justify-center space-x-2">
-                <Loader2 className="w-6 h-6 animate-spin" />
-                <span>{t('upload.processing')}</span>
-              </div>
-            ) : (
-              <div className="flex items-center justify-center space-x-2">
-                <Check className="w-6 h-6" />
-                <span>{t('upload.detect')}</span>
-              </div>
-            )}
-          </button>
-        </div>
-
-        {/* Camera Modal Overlay */}
-        {showCamera && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80">
-            <div className="relative bg-white rounded-lg shadow-lg p-4 flex flex-col items-center">
-              <video
-                ref={videoRef}
-                autoPlay
-                playsInline
-                className="w-[320px] h-[240px] bg-black rounded-lg mb-4"
+            {/* Animated background for enabled state */}
+            {!(!selectedFile || !selectedCrop || isProcessing) && (
+              <motion.div
+                className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0"
+                animate={{ x: ['-100%', '100%'] }}
+                transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
               />
-              <canvas ref={canvasRef} className="hidden" />
-              <div className="flex flex-col space-y-3 mt-4 w-full">
-                <div className="flex justify-center space-x-3">
-                  <button
-                    onClick={handleFlipCamera}
-                    className="px-6 py-3 bg-green-200 text-green-800 rounded-lg font-semibold hover:bg-green-300 transition-colors"
-                    type="button"
-                  >
-                    {facingMode === 'environment' ? 'Flip to Front Camera' : 'Flip to Back Camera'}
-                  </button>
-                  <button
-                    onClick={handleCapture}
-                    className="px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors"
-                    type="button"
-                  >
-                    Capture Photo
-                  </button>
-                </div>
-                <button
-                  onClick={() => setShowCamera(false)}
-                  className="px-6 py-2 bg-red-500 text-white rounded-lg font-semibold hover:bg-red-600 transition-colors"
-                  type="button"
+            )}
+            
+            {isProcessing ? (
+              <motion.div 
+                className="flex items-center justify-center space-x-3"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+              >
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                 >
-                  Close Camera
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
+                  <Loader2 className="w-6 h-6" />
+                </motion.div>
+                <span>{t('upload.processing')}</span>
+                <motion.div
+                  animate={{ scale: [1, 1.2, 1] }}
+                  transition={{ duration: 1, repeat: Infinity }}
+                >
+                  <Zap className="w-5 h-5" />
+                </motion.div>
+              </motion.div>
+            ) : (
+              <motion.div 
+                className="flex items-center justify-center space-x-3"
+                whileHover={{ scale: 1.05 }}
+              >
+                <motion.div
+                  animate={selectedFile && selectedCrop ? { 
+                    scale: [1, 1.1, 1],
+                    rotate: [0, 5, -5, 0]
+                  } : {}}
+                  transition={{ duration: 2, repeat: Infinity }}
+                >
+                  <Check className="w-6 h-6" />
+                </motion.div>
+                <span>{t('upload.detect')}</span>
+                <motion.div
+                  animate={selectedFile && selectedCrop ? { 
+                    x: [0, 5, 0],
+                    opacity: [0.7, 1, 0.7]
+                  } : {}}
+                  transition={{ duration: 1.5, repeat: Infinity }}
+                >
+                  <Sparkles className="w-5 h-5" />
+                </motion.div>
+              </motion.div>
+            )}
+          </motion.button>
+        </motion.div>
+
+        {/* Enhanced Camera Modal Overlay */}
+        <AnimatePresence>
+          {showCamera && (
+            <motion.div 
+              className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <motion.div 
+                className="relative bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl p-6 flex flex-col items-center border border-white/50"
+                initial={{ scale: 0.8, opacity: 0, y: 50 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                exit={{ scale: 0.8, opacity: 0, y: 50 }}
+                transition={{ type: "spring", stiffness: 300, damping: 30 }}
+              >
+                <motion.video
+                  ref={videoRef}
+                  autoPlay
+                  playsInline
+                  className="w-[320px] h-[240px] bg-black rounded-2xl mb-4 shadow-xl border-4 border-white"
+                  initial={{ scale: 0.9 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: 0.2 }}
+                />
+                <canvas ref={canvasRef} className="hidden" />
+                
+                <div className="flex flex-col space-y-4 mt-4 w-full">
+                  <div className="flex justify-center space-x-4">
+                    <motion.button
+                      onClick={handleFlipCamera}
+                      className="px-6 py-3 bg-gradient-to-r from-green-200 to-emerald-200 text-green-800 rounded-2xl font-semibold hover:from-green-300 hover:to-emerald-300 transition-all duration-300 shadow-lg hover:shadow-xl"
+                      type="button"
+                      whileHover={{ scale: 1.05, y: -2 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      {facingMode === 'environment' ? 'Flip to Front Camera' : 'Flip to Back Camera'}
+                    </motion.button>
+                    
+                    <motion.button
+                      onClick={handleCapture}
+                      className="px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-2xl font-semibold hover:from-green-700 hover:to-emerald-700 transition-all duration-300 shadow-lg hover:shadow-xl relative overflow-hidden group"
+                      type="button"
+                      whileHover={{ scale: 1.05, y: -2 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <div className="absolute inset-0 bg-gradient-to-r from-white/0 to-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-500" />
+                      <span className="relative">Capture Photo</span>
+                    </motion.button>
+                  </div>
+                  
+                  <motion.button
+                    onClick={() => setShowCamera(false)}
+                    className="px-6 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-2xl font-semibold hover:from-red-600 hover:to-red-700 transition-all duration-300 shadow-lg hover:shadow-xl"
+                    type="button"
+                    whileHover={{ scale: 1.05, y: -2 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    Close Camera
+                  </motion.button>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
     </div>
   );
 };
