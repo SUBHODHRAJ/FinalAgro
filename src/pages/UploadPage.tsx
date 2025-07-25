@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useState as useStateHook } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -40,6 +40,41 @@ const UploadPage: React.FC = () => {
   const [error, setError] = useState<string>('');
   const [dragActive, setDragActive] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [isBackCamera, setIsBackCamera] = useState(true);
+  const [showCamera, setShowCamera] = useState(false);
+  const [videoStream, setVideoStream] = useState<MediaStream | null>(null);
+  const [facingMode, setFacingMode] = useState<'environment' | 'user'>('environment');
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    if (showCamera) {
+      (async () => {
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode } });
+          setVideoStream(stream);
+          if (videoRef.current) {
+            videoRef.current.srcObject = stream;
+          }
+        } catch (err) {
+          setError('Unable to access camera');
+          setShowCamera(false);
+        }
+      })();
+    } else {
+      if (videoStream) {
+        videoStream.getTracks().forEach(track => track.stop());
+        setVideoStream(null);
+      }
+    }
+    // Cleanup on unmount
+    return () => {
+      if (videoStream) {
+        videoStream.getTracks().forEach(track => track.stop());
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showCamera, facingMode]);
 
   const handleFileSelect = (file: File) => {
     if (!file.type.startsWith('image/')) {
@@ -78,6 +113,30 @@ const UploadPage: React.FC = () => {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
+  };
+
+  const handleCapture = () => {
+    if (videoRef.current && canvasRef.current) {
+      const video = videoRef.current;
+      const canvas = canvasRef.current;
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        canvas.toBlob(blob => {
+          if (blob) {
+            const file = new File([blob], 'captured.jpg', { type: 'image/jpeg' });
+            handleFileSelect(file);
+            setShowCamera(false);
+          }
+        }, 'image/jpeg');
+      }
+    }
+  };
+
+  const handleFlipCamera = () => {
+    setFacingMode(facingMode === 'environment' ? 'user' : 'environment');
   };
 
   const handleDetection = async () => {
@@ -200,7 +259,7 @@ const UploadPage: React.FC = () => {
               ref={cameraInputRef}
               type="file"
               accept="image/*"
-              capture="environment"
+              capture={isBackCamera ? "environment" : "user"}
               onChange={(e) => e.target.files?.[0] && handleFileSelect(e.target.files[0])}
               className="hidden"
             />
@@ -208,8 +267,9 @@ const UploadPage: React.FC = () => {
             {/* Upload Buttons */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
               <button
-                onClick={() => cameraInputRef.current?.click()}
+                onClick={() => setShowCamera(true)}
                 className="flex items-center justify-center space-x-2 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
+                type="button"
               >
                 <Camera className="w-5 h-5" />
                 <span>{t('upload.camera')}</span>
@@ -217,6 +277,7 @@ const UploadPage: React.FC = () => {
               <button
                 onClick={() => fileInputRef.current?.click()}
                 className="flex items-center justify-center space-x-2 bg-green-100 hover:bg-green-200 text-green-700 font-semibold py-3 px-6 rounded-lg transition-colors border border-green-300"
+                type="button"
               >
                 <ImageIcon className="w-5 h-5" />
                 <span>{t('upload.gallery')}</span>
@@ -260,6 +321,43 @@ const UploadPage: React.FC = () => {
           isOpen={isChatOpen}
           onToggle={() => setIsChatOpen(!isChatOpen)}
         />
+        {/* Camera Modal Overlay */}
+        {showCamera && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80">
+            <div className="relative bg-white rounded-lg shadow-lg p-4 flex flex-col items-center">
+              <video
+                ref={videoRef}
+                autoPlay
+                playsInline
+                className="w-[320px] h-[240px] bg-black rounded-lg mb-4"
+              />
+              <canvas ref={canvasRef} className="hidden" />
+              <div className="flex space-x-4 mt-2">
+                <button
+                  onClick={handleFlipCamera}
+                  className="px-4 py-2 bg-green-200 text-green-800 rounded-lg font-semibold hover:bg-green-300"
+                  type="button"
+                >
+                  {facingMode === 'environment' ? t('upload.flipToFront') : t('upload.flipToBack')}
+                </button>
+                <button
+                  onClick={handleCapture}
+                  className="px-4 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700"
+                  type="button"
+                >
+                  {t('upload.capture')}
+                </button>
+                <button
+                  onClick={() => setShowCamera(false)}
+                  className="px-4 py-2 bg-red-500 text-white rounded-lg font-semibold hover:bg-red-600"
+                  type="button"
+                >
+                  {t('upload.close')}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
