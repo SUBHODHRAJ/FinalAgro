@@ -16,7 +16,7 @@ const GlobalChatPanel: React.FC = () => {
   const handleChatToggle = () => {
     if (isChatOpen && isPanelExpanded) {
       setIsPanelExpanded(false);
-      setTimeout(() => setIsChatOpen(false), 300);
+      setTimeout(() => setIsChatOpen(false), 150);
     } else {
       setIsChatOpen(true);
       setIsPanelExpanded(true);
@@ -61,7 +61,7 @@ const GlobalChatPanel: React.FC = () => {
 
       {/* Chat Panel */}
       <div
-        className={`fixed bottom-4 right-4 bg-gradient-to-br from-white via-gray-50/90 to-green-50/30 border border-gray-200/50 shadow-2xl backdrop-blur-lg transition-all duration-700 ease-out z-50 rounded-3xl overflow-hidden ${
+        className={`fixed bottom-4 right-4 bg-gradient-to-br from-white via-gray-50/90 to-green-50/30 border border-gray-200/50 shadow-2xl backdrop-blur-lg transition-all duration-300 ease-out z-50 rounded-3xl overflow-hidden ${
           isPanelExpanded ? 'w-[400px] h-[600px]' : 'w-0 h-0'
         }`}
         style={{
@@ -111,7 +111,7 @@ const GlobalChatPanel: React.FC = () => {
           <button
             onClick={() => {
               setIsPanelExpanded(false);
-              setTimeout(() => setIsChatOpen(false), 700);
+              setTimeout(() => setIsChatOpen(false), 150);
             }}
             className="relative text-white hover:bg-white/25 p-3 rounded-2xl transition-all duration-300 group backdrop-blur-md border border-white/20 hover:border-white/40"
             aria-label="Close chat panel"
@@ -137,13 +137,13 @@ const GlobalChatPanel: React.FC = () => {
       {/* Overlay for mobile responsiveness */}
       {isPanelExpanded && (
         <div
-          className="fixed inset-0 bg-gradient-to-br from-black/60 via-green-900/20 to-transparent z-40 md:hidden backdrop-blur-md transition-all duration-700"
+          className="fixed inset-0 bg-gradient-to-br from-black/60 via-green-900/20 to-transparent z-40 md:hidden backdrop-blur-md transition-all duration-300"
           onClick={() => {
             setIsPanelExpanded(false);
-            setTimeout(() => setIsChatOpen(false), 700);
+            setTimeout(() => setIsChatOpen(false), 150);
           }}
           style={{
-            animation: 'fadeIn 0.7s ease-out'
+            animation: 'fadeIn 0.3s ease-out'
           }}
         />
       )}

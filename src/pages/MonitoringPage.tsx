@@ -1,23 +1,13 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect } from 'react';
+import { motion, useInView } from 'framer-motion';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { 
   ArrowLeft, 
   Share2, 
   Download, 
   Camera, 
-  MessageCircle,
-  Leaf,
-  Beaker,
-  Sparkles,
-  TrendingUp,
+  MapPin,
   Calendar,
-  BarChart3,
-  History,
-  FileText,
-  Plus,
-  Zap,
-  Activity,
   Clock,
   Droplets,
   Thermometer,
@@ -25,7 +15,23 @@ import {
   Shield,
   Eye,
   CheckCircle,
-  AlertCircle
+  AlertCircle,
+  Leaf,
+  Beaker,
+  Activity,
+  BarChart3,
+  FileText,
+  MessageCircle,
+  Facebook,
+  Twitter,
+  Instagram,
+  Zap,
+  Lightbulb,
+  Sprout,
+  Gauge,
+  TrendingUp,
+  Target,
+  Timer
 } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { DetectionResult } from '../types';
@@ -38,572 +44,527 @@ const MonitoringPage: React.FC = () => {
   
   const result = location.state?.result as DetectionResult;
 
-  // Mock scan history data
-  const scanHistory = [
-    { id: 1, crop: 'Tomato', date: '2024-01-15', status: 'Healthy' },
-    { id: 2, crop: 'Potato', date: '2024-01-14', status: 'Early Blight' },
-    { id: 3, crop: 'Wheat', date: '2024-01-13', status: 'Rust Disease' },
-    { id: 4, crop: 'Rice', date: '2024-01-12', status: 'Healthy' },
-  ];
-
-  // Mock timeline data for treatment progress
-  const treatmentTimeline = [
-    { date: '2024-01-15', action: 'Disease Detected', status: 'current', severity: 89 },
-    { date: '2024-01-18', action: 'Organic Treatment Applied', status: 'scheduled', severity: 75 },
-    { date: '2024-01-22', action: 'Progress Check', status: 'scheduled', severity: 50 },
-    { date: '2024-01-25', action: 'Expected Recovery', status: 'future', severity: 20 },
-  ];
-
-  const handleShare = () => {
-    const shareText = `AgroIndia Monitoring Report:\n\nCrop: ${result?.crop}\nIssue: ${result?.disease}\nConfidence: ${result?.confidence}%\n\nMonitoring treatment progress...`;
-    
-    if (navigator.share) {
-      navigator.share({
-        title: 'AgroIndia Monitoring Report',
-        text: shareText,
-      });
-    } else {
-      const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
-      window.open(whatsappUrl, '_blank');
-    }
+  // Mock data for comprehensive results
+  const mockResult = {
+    disease: 'Bacterial Wilt',
+    confidence: 91,
+    severity: 'Severe',
+    crop: 'Tomato',
+    timestamp: new Date().toISOString(),
+    location: 'Punjab, India',
+    imageUrl: 'https://images.unsplash.com/photo-1574263867128-76bf4c36b9a1?auto=format&fit=crop&w=400&q=80',
+    reference: {
+      healthy: 'https://images.unsplash.com/photo-1464522883041-5a5890f09092?auto=format&fit=crop&w=200&q=80',
+      mild: 'https://images.unsplash.com/photo-1530836369250-ef72a3f5cda8?auto=format&fit=crop&w=200&q=80',
+      moderate: 'https://images.unsplash.com/photo-1544427920-c49ccfb85579?auto=format&fit=crop&w=200&q=80',
+      severe: 'https://images.unsplash.com/photo-1574263867128-76bf4c36b9a1?auto=format&fit=crop&w=200&q=80',
+    },
   };
 
-  const handleDownload = () => {
+  const currentResult = result || mockResult;
+
+  // Watering prediction data
+  const wateringData = [
+    { day: 1, water: 2.5, label: 'Day 1' },
+    { day: 3, water: 3.2, label: 'Day 3' },
+    { day: 7, water: 2.8, label: 'Day 7' },
+    { day: 14, water: 2.1, label: 'Day 14' },
+    { day: 21, water: 1.8, label: 'Day 21' },
+    { day: 30, water: 1.5, label: 'Day 30' },
+  ];
+
+  const organicTreatments = [
+    { icon: Leaf, title: 'Neem Oil Application', description: 'Apply every 3 days for 2 weeks', frequency: '3 days' },
+    { icon: Sprout, title: 'Beneficial Bacteria', description: 'Bacillus subtilis spray weekly', frequency: '7 days' },
+    { icon: Droplets, title: 'Copper Sulfate Solution', description: '2% solution, bi-weekly application', frequency: '14 days' },
+    { icon: Sun, title: 'Soil Solarization', description: 'Cover soil with plastic for 6 weeks', frequency: 'Once' }
+  ];
+
+  const chemicalTreatments = [
+    { icon: Beaker, title: 'Streptomycin Sulfate', description: '200ppm dilution, spray weekly', frequency: '7 days' },
+    { icon: Shield, title: 'Copper Hydroxide', description: '2g/L water, preventive spray', frequency: '10 days' },
+    { icon: Zap, title: 'Oxytetracycline', description: '500ppm for severe cases only', frequency: '5 days' },
+    { icon: Target, title: 'Systemic Fungicide', description: 'Metalaxyl-based, soil drench', frequency: '21 days' }
+  ];
+
+  const maintenanceGuidelines = [
+    { icon: Droplets, title: 'Watering Schedule', description: 'Water at soil level, avoid leaves', status: 'active' },
+    { icon: Gauge, title: 'Soil pH Monitoring', description: 'Maintain pH 6.0-6.8 for tomatoes', status: 'pending' },
+    { icon: Calendar, title: 'Re-application Schedule', description: 'Next treatment in 3 days', status: 'scheduled' },
+    { icon: Thermometer, title: 'Temperature Control', description: 'Optimal range: 18-24°C', status: 'monitoring' },
+    { icon: Activity, title: 'Plant Monitoring', description: 'Daily visual inspection', status: 'active' },
+    { icon: Timer, title: 'Recovery Timeline', description: 'Expected improvement in 7-14 days', status: 'tracking' }
+  ];
+
+  const handleShare = (platform: string) => {
+    const shareText = `🌱 AgroGuard Disease Detection Result:\n\n✅ Crop: ${currentResult.crop}\n🔍 Issue: ${currentResult.disease}\n📊 Confidence: ${currentResult.confidence}%\n\n#SmartFarming #AgroGuard`;
+    
+    const urls = {
+      whatsapp: `https://wa.me/?text=${encodeURIComponent(shareText)}`,
+      facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`,
+      twitter: `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`,
+      instagram: '#' // Instagram doesn't support direct sharing
+    };
+
+    window.open(urls[platform as keyof typeof urls], '_blank');
+  };
+
+  const handleDownloadReport = () => {
     const reportContent = `
-AgroIndia Monitoring Report
-Generated: ${new Date().toLocaleDateString()}
+AGROGUARD DISEASE DETECTION REPORT
+Generated: ${new Date().toLocaleDateString('en-US', { 
+  year: 'numeric', 
+  month: 'long', 
+  day: 'numeric',
+  hour: '2-digit',
+  minute: '2-digit'
+})}
 
-Crop: ${result?.crop || 'Unknown'}
-Detected Issue: ${result?.disease || 'Unknown'}
-Confidence Level: ${result?.confidence || 0}%
+CROP INFORMATION:
+Crop Type: ${currentResult.crop}
+Location: ${currentResult.location || 'Not specified'}
+Scan Date: ${new Date(currentResult.timestamp).toLocaleDateString()}
 
-Treatment Timeline:
-${treatmentTimeline.map(item => `${item.date}: ${item.action} (Severity: ${item.severity}%)`).join('\n')}
+DETECTION RESULTS:
+Detected Issue: ${currentResult.disease}
+Confidence Level: ${currentResult.confidence}%
+Severity: ${currentResult.severity || 'High'}
+
+TREATMENT RECOMMENDATIONS:
+Organic Methods:
+${organicTreatments.map((treatment, i) => `${i + 1}. ${treatment.title} - ${treatment.description} (Every ${treatment.frequency})`).join('\n')}
+
+Chemical Methods:
+${chemicalTreatments.map((treatment, i) => `${i + 1}. ${treatment.title} - ${treatment.description} (Every ${treatment.frequency})`).join('\n')}
+
+MAINTENANCE GUIDELINES:
+${maintenanceGuidelines.map((guide, i) => `${i + 1}. ${guide.title}: ${guide.description}`).join('\n')}
+
+WATERING FORECAST:
+${wateringData.map(data => `${data.label}: ${data.water}L recommended`).join('\n')}
 
 ---
-Report generated by AgroIndia AI Monitoring System
+This report is AI-generated based on visual analysis.
+For critical decisions, consult agricultural experts.
+
+Report generated by AgroGuard AI Platform
     `;
 
     const blob = new Blob([reportContent], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `agroindia-monitoring-report-${Date.now()}.txt`;
+    a.download = `agroguard-report-${currentResult.crop}-${Date.now()}.txt`;
     a.click();
     URL.revokeObjectURL(url);
   };
 
-  const organicSolutions = [
-    "Apply neem oil spray (2-3 times per week)",
-    "Use beneficial insects like ladybugs for natural pest control",
-    "Prepare compost tea and apply to soil",
-    "Implement crop rotation with nitrogen-fixing plants",
-    "Use copper-based organic fungicides"
-  ];
+  // Animation variants
+  const fadeInUp = {
+    initial: { opacity: 0, y: 60 },
+    animate: { opacity: 1, y: 0 },
+    transition: { duration: 0.6 }
+  };
 
-  const chemicalSolutions = [
-    "Apply systemic fungicide (follow label instructions)",
-    "Use targeted insecticide spray",
-    "Apply balanced NPK fertilizer",
-    "Use soil sterilization agents if needed",
-    "Consider growth regulators for severe cases"
-  ];
+  const staggerContainer = {
+    animate: {
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
 
-  const preventionTips = [
-    "Maintain proper spacing between plants for air circulation",
-    "Water at soil level to avoid wetting leaves",
-    "Remove and destroy infected plant debris immediately",
-    "Monitor crops regularly for early detection",
-    "Use disease-resistant varieties when possible",
-    "Ensure proper soil drainage and pH levels"
-  ];
+  const AnimatedSection = ({ children, className = "", delay = 0 }: { children: React.ReactNode, className?: string, delay?: number }) => {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 40 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay }}
+        className={className}
+      >
+        {children}
+      </motion.div>
+    );
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-50 py-8 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-      {/* Floating Particles */}
-      {[...Array(6)].map((_, i) => (
-        <motion.div
-          key={i}
-          className="absolute opacity-20"
-          initial={{
-            x: Math.random() * window.innerWidth,
-            y: window.innerHeight + 50,
-            rotate: 0,
-            scale: 0.5 + Math.random() * 0.5
-          }}
-          animate={{
-            y: -100,
-            rotate: 360,
-            x: Math.random() * window.innerWidth
-          }}
-          transition={{
-            duration: 8 + Math.random() * 4,
-            repeat: Infinity,
-            delay: i * 0.5,
-            ease: "linear"
-          }}
-        >
-          <Sparkles className="w-6 h-6 text-green-400" />
-        </motion.div>
-      ))}
-
-      <div className="max-w-7xl mx-auto relative z-10">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-green-100 py-8 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <motion.div 
-          className="flex items-center justify-between mb-8"
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
+        <AnimatedSection className="flex items-center justify-between mb-8">
           <button
-            onClick={() => navigate('/result', { state: { result } })}
-            className="flex items-center space-x-2 text-green-600 hover:text-green-700 font-medium"
+            onClick={() => navigate('/result', { state: { result: currentResult } })}
+            className="flex items-center space-x-2 text-green-600 hover:text-green-700 font-medium transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
             <span>Back to Results</span>
           </button>
           
-          <h1 className="text-3xl md:text-4xl font-bold text-green-800">
-            Crop Monitoring Dashboard
-          </h1>
-          
-          <div className="w-20"></div>
-        </motion.div>
-
-        {/* Crop Monitoring Panel - Full Implementation */}
-        <motion.div 
-          className="bg-white rounded-2xl shadow-xl overflow-hidden mb-8"
-          initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-        >
-          {/* Panel Header */}
-          <div className="bg-gradient-to-r from-emerald-600 to-green-600 text-white p-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <div className="bg-white/20 p-2 rounded-lg">
-                  <Activity className="w-6 h-6" />
-                </div>
-                <div>
-                  <h2 className="text-2xl font-bold">Crop Monitoring Panel</h2>
-                  <p className="text-emerald-100">Track treatment progress and health insights</p>
-                </div>
-              </div>
-              <div className="flex items-center space-x-2 bg-white/20 px-3 py-1 rounded-lg">
-                <TrendingUp className="w-4 h-4" />
-                <span className="text-sm font-medium">Live Monitoring</span>
-              </div>
-            </div>
+          <div className="text-center">
+            <h1 className="text-3xl md:text-4xl font-bold text-green-800 mb-2">
+              AgroGuard Results
+            </h1>
+            <p className="text-green-600 text-lg">Comprehensive Analysis & Treatment Plan</p>
           </div>
+          
+          <div className="w-24"></div>
+        </AnimatedSection>
 
-          <div className="p-8">
-            {/* Timeline View */}
-            <div className="mb-8">
-              <h3 className="text-xl font-semibold text-green-800 mb-4 flex items-center space-x-2">
-                <Clock className="w-5 h-5" />
-                <span>Treatment Timeline</span>
-              </h3>
-              
-              <div className="relative">
-                <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-green-200"></div>
-                <div className="space-y-4">
-                  {treatmentTimeline.map((item, index) => (
-                    <motion.div
-                      key={index}
-                      className={`relative flex items-center space-x-4 p-4 rounded-lg border-2 transition-all ${
-                        item.status === 'current' 
-                          ? 'border-green-400 bg-green-50' 
-                          : item.status === 'scheduled'
-                          ? 'border-blue-400 bg-blue-50'
-                          : 'border-gray-300 bg-gray-50'
-                      }`}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.1 }}
-                    >
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                        item.status === 'current' 
-                          ? 'bg-green-500' 
-                          : item.status === 'scheduled'
-                          ? 'bg-blue-500'
-                          : 'bg-gray-400'
-                      }`}>
-                        {item.status === 'current' ? (
-                          <CheckCircle className="w-4 h-4 text-white" />
-                        ) : item.status === 'scheduled' ? (
-                          <Calendar className="w-4 h-4 text-white" />
-                        ) : (
-                          <Clock className="w-4 h-4 text-white" />
-                        )}
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between">
-                          <span className="font-semibold text-gray-800">{item.action}</span>
-                          <span className="text-sm text-gray-600">{item.date}</span>
-                        </div>
-                        <div className="mt-1 flex items-center space-x-2">
-                          <span className="text-sm text-gray-600">Disease Severity:</span>
-                          <div className="flex items-center space-x-1">
-                            <div className="w-20 h-2 bg-gray-200 rounded-full">
-                              <div 
-                                className={`h-2 rounded-full ${
-                                  item.severity > 70 ? 'bg-red-500' : item.severity > 40 ? 'bg-yellow-500' : 'bg-green-500'
-                                }`}
-                                style={{ width: `${item.severity}%` }}
-                              ></div>
-                            </div>
-                            <span className="text-sm font-medium">{item.severity}%</span>
-                          </div>
-                        </div>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Disease Severity Graph */}
-            <div className="mb-8">
-              <h3 className="text-xl font-semibold text-green-800 mb-4 flex items-center space-x-2">
-                <BarChart3 className="w-5 h-5" />
-                <span>Disease Severity Tracking</span>
-              </h3>
-              
-              <div className="bg-gray-50 rounded-xl p-6 border-2 border-gray-200">
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-sm font-medium text-gray-600">Severity Level Over Time</span>
-                  <div className="flex items-center space-x-4 text-sm">
-                    <div className="flex items-center space-x-1">
-                      <div className="w-3 h-3 bg-red-500 rounded"></div>
-                      <span>High</span>
-                    </div>
-                    <div className="flex items-center space-x-1">
-                      <div className="w-3 h-3 bg-yellow-500 rounded"></div>
-                      <span>Medium</span>
-                    </div>
-                    <div className="flex items-center space-x-1">
-                      <div className="w-3 h-3 bg-green-500 rounded"></div>
-                      <span>Low</span>
+        {/* Uploaded Image & Info Section */}
+        <AnimatedSection delay={0.1} className="mb-8">
+          <div className="bg-white rounded-2xl shadow-xl p-6 border border-green-100">
+            <h2 className="text-2xl font-bold text-green-800 mb-6 flex items-center space-x-2">
+              <Camera className="w-6 h-6" />
+              <span>Uploaded Image & Information</span>
+            </h2>
+            
+            <div className="grid md:grid-cols-2 gap-6">
+              <div className="space-y-4">
+                {currentResult.imageUrl && (
+                  <div className="relative group">
+                    <img
+                      src={currentResult.imageUrl}
+                      alt={`${currentResult.crop} analysis`}
+                      className="w-full h-80 object-cover rounded-xl shadow-lg border-2 border-green-200 group-hover:shadow-2xl transition-shadow duration-300"
+                    />
+                    <div className="absolute top-4 right-4 bg-green-600 text-white px-3 py-1 rounded-full text-sm font-bold shadow-lg">
+                      ✓ Analyzed
                     </div>
                   </div>
-                </div>
-                
-                {/* Placeholder for chart */}
-                <div className="h-40 bg-white rounded-lg border border-gray-200 flex items-center justify-center">
-                  <div className="text-center text-gray-500">
-                    <BarChart3 className="w-12 h-12 mx-auto mb-2 text-gray-400" />
-                    <p className="text-sm">Interactive severity chart would appear here</p>
-                    <p className="text-xs">Showing improvement from 89% to projected 20%</p>
-                  </div>
-                </div>
+                )}
               </div>
-            </div>
-
-            {/* Side-by-side Widgets */}
-            <div className="grid md:grid-cols-2 gap-6 mb-8">
-              {/* Scan History Widget */}
-              <motion.div 
-                className="bg-purple-50 rounded-xl p-6 border-2 border-purple-200 hover:shadow-lg transition-shadow"
-                whileHover={{ scale: 1.02 }}
-              >
-                <h4 className="text-lg font-semibold text-purple-800 mb-4 flex items-center space-x-2">
-                  <History className="w-5 h-5" />
-                  <span>Scan History</span>
-                </h4>
-                
-                <div className="space-y-3">
-                  {scanHistory.slice(0, 4).map((scan) => (
-                    <div key={scan.id} className="flex items-center justify-between p-3 bg-white rounded-lg shadow-sm">
-                      <div>
-                        <span className="font-medium text-gray-800">{scan.crop}</span>
-                        <p className="text-sm text-gray-600">{scan.date}</p>
-                      </div>
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        scan.status === 'Healthy' 
-                          ? 'bg-green-100 text-green-800' 
-                          : 'bg-red-100 text-red-800'
-                      }`}>
-                        {scan.status}
-                      </span>
-                    </div>
-                  ))}
-                  <button className="w-full text-purple-600 hover:text-purple-700 text-sm font-medium py-2">
-                    View All History →
-                  </button>
-                </div>
-              </motion.div>
-
-              {/* Recommended Next Step Widget */}
-              <motion.div 
-                className="bg-blue-50 rounded-xl p-6 border-2 border-blue-200 hover:shadow-lg transition-shadow"
-                whileHover={{ scale: 1.02 }}
-              >
-                <h4 className="text-lg font-semibold text-blue-800 mb-4 flex items-center space-x-2">
-                  <Zap className="w-5 h-5" />
-                  <span>Recommended Next Step</span>
-                </h4>
-                
-                <div className="space-y-4">
-                  <div className="bg-white rounded-lg p-4 shadow-sm">
-                    <div className="flex items-start space-x-3">
-                      <div className="bg-blue-100 p-2 rounded-lg">
-                        <Droplets className="w-5 h-5 text-blue-600" />
-                      </div>
-                      <div className="flex-1">
-                        <h5 className="font-semibold text-gray-800">Apply Organic Treatment</h5>
-                        <p className="text-sm text-gray-600 mt-1">Based on severe stage detection, immediate organic fungicide application recommended</p>
-                        <div className="mt-2 flex items-center space-x-2 text-xs text-blue-600">
-                          <Calendar className="w-3 h-3" />
-                          <span>Schedule for today</span>
-                        </div>
-                      </div>
+              
+              <div className="space-y-4">
+                <div className="bg-green-50 rounded-xl p-4 border border-green-200">
+                  <div className="flex items-center space-x-3 mb-4">
+                    <Sprout className="w-8 h-8 text-green-600" />
+                    <div>
+                      <h3 className="text-xl font-bold text-green-800">{currentResult.crop}</h3>
+                      <p className="text-green-600">Crop Type</p>
                     </div>
                   </div>
                   
-                  <div className="bg-white rounded-lg p-4 shadow-sm">
-                    <div className="flex items-start space-x-3">
-                      <div className="bg-green-100 p-2 rounded-lg">
-                        <Eye className="w-5 h-5 text-green-600" />
+                  <div className="space-y-3">
+                    <div className="flex items-center space-x-3">
+                      <Calendar className="w-5 h-5 text-green-600" />
+                      <div>
+                        <p className="font-semibold text-gray-800">Scan Date & Time</p>
+                        <p className="text-gray-600">
+                          {new Date(currentResult.timestamp).toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                          })} – {new Date(currentResult.timestamp).toLocaleTimeString('en-US', {
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
+                        </p>
                       </div>
-                      <div className="flex-1">
-                        <h5 className="font-semibold text-gray-800">Monitor Progress</h5>
-                        <p className="text-sm text-gray-600 mt-1">Schedule follow-up scan in 3-4 days to track treatment effectiveness</p>
-                        <div className="mt-2 flex items-center space-x-2 text-xs text-green-600">
-                          <Calendar className="w-3 h-3" />
-                          <span>Due in 3 days</span>
-                        </div>
+                    </div>
+                    
+                    <div className="flex items-center space-x-3">
+                      <MapPin className="w-5 h-5 text-green-600" />
+                      <div>
+                        <p className="font-semibold text-gray-800">Location</p>
+                        <p className="text-gray-600">{currentResult.location || 'Location not specified'}</p>
                       </div>
                     </div>
                   </div>
                 </div>
-              </motion.div>
+              </div>
+            </div>
+          </div>
+        </AnimatedSection>
+
+        {/* Detected Disease & Prediction Confidence */}
+        <AnimatedSection delay={0.2} className="mb-8">
+          <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-green-100">
+            <div className="bg-gradient-to-r from-red-500 to-orange-500 text-white p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <h2 className="text-3xl font-bold mb-2">{currentResult.disease}</h2>
+                  <p className="text-red-100 text-lg">Detection based on AI visual scan</p>
+                </div>
+                <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-4 text-center">
+                  <div className="text-3xl font-black">{currentResult.confidence}%</div>
+                  <div className="text-sm opacity-90">Confidence</div>
+                </div>
+              </div>
+              
+              {/* Confidence Bar */}
+              <div className="mt-4">
+                <div className="w-full bg-white/20 rounded-full h-3">
+                  <motion.div
+                    className="h-3 rounded-full bg-white"
+                    initial={{ width: "0%" }}
+                    animate={{ width: `${currentResult.confidence}%` }}
+                    transition={{ duration: 2, delay: 0.5 }}
+                  />
+                </div>
+              </div>
             </div>
 
-            {/* Environmental Conditions */}
-            <div className="mb-8">
-              <h3 className="text-xl font-semibold text-green-800 mb-4 flex items-center space-x-2">
-                <Sun className="w-5 h-5" />
-                <span>Current Environmental Conditions</span>
+            <div className="p-6">
+              <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center space-x-2">
+                <Eye className="w-5 h-5" />
+                <span>Reference Comparison</span>
               </h3>
               
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {[
-                  { label: 'Temperature', value: '28°C', icon: Thermometer, color: 'orange' },
-                  { label: 'Humidity', value: '65%', icon: Droplets, color: 'blue' },
-                  { label: 'Sunlight', value: 'Optimal', icon: Sun, color: 'yellow' },
-                  { label: 'Risk Level', value: 'Medium', icon: Shield, color: 'red' }
-                ].map((condition, index) => (
+                  { src: currentResult.reference?.healthy, label: 'Healthy', color: 'green' },
+                  { src: currentResult.reference?.mild, label: 'Mild', color: 'yellow' },
+                  { src: currentResult.reference?.moderate, label: 'Moderate', color: 'orange' },
+                  { src: currentResult.reference?.severe, label: 'Severe', color: 'red' }
+                ].map((ref, index) => (
                   <motion.div
                     key={index}
-                    className="bg-white rounded-lg p-4 border-2 border-gray-200 text-center hover:shadow-md transition-shadow"
+                    className="text-center group cursor-pointer"
+                    whileHover={{ scale: 1.05 }}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.1 }}
+                    transition={{ delay: 0.3 + index * 0.1 }}
                   >
-                    <condition.icon className={`w-6 h-6 mx-auto mb-2 text-${condition.color}-500`} />
-                    <p className="text-sm font-medium text-gray-600">{condition.label}</p>
-                    <p className="text-lg font-bold text-gray-800">{condition.value}</p>
+                    <img
+                      src={ref.src}
+                      alt={ref.label}
+                      className={`w-full h-24 object-cover rounded-lg border-2 border-${ref.color}-300 group-hover:shadow-lg transition-shadow`}
+                    />
+                    <p className={`mt-2 text-sm font-semibold text-${ref.color}-700`}>{ref.label}</p>
                   </motion.div>
                 ))}
               </div>
             </div>
+          </div>
+        </AnimatedSection>
 
-            {/* Action Buttons */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <motion.button
-                className="flex items-center justify-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-all"
-                whileHover={{ scale: 1.05, y: -2 }}
-                whileTap={{ scale: 0.95 }}
+        {/* Treatment Plan Section */}
+        <AnimatedSection delay={0.3} className="mb-8">
+          <div className="bg-white rounded-2xl shadow-xl p-6 border border-green-100">
+            <h2 className="text-2xl font-bold text-green-800 mb-6 flex items-center space-x-2">
+              <Lightbulb className="w-6 h-6" />
+              <span>Prevention & Treatment</span>
+            </h2>
+            
+            {/* Tab Navigation */}
+            <div className="flex space-x-1 bg-gray-100 p-1 rounded-xl mb-6">
+              <button
+                onClick={() => setActiveTab('organic')}
+                className={`flex-1 flex items-center justify-center space-x-2 py-4 px-6 rounded-lg font-semibold transition-all ${
+                  activeTab === 'organic'
+                    ? 'bg-green-500 text-white shadow-lg'
+                    : 'text-green-600 hover:bg-green-50'
+                }`}
               >
-                <TrendingUp className="w-5 h-5" />
-                <span>Go to Insights</span>
-              </motion.button>
+                <Leaf className="w-5 h-5" />
+                <span>Organic Methods</span>
+              </button>
+              <button
+                onClick={() => setActiveTab('chemical')}
+                className={`flex-1 flex items-center justify-center space-x-2 py-4 px-6 rounded-lg font-semibold transition-all ${
+                  activeTab === 'chemical'
+                    ? 'bg-blue-500 text-white shadow-lg'
+                    : 'text-blue-600 hover:bg-blue-50'
+                }`}
+              >
+                <Beaker className="w-5 h-5" />
+                <span>Chemical Methods</span>
+              </button>
+            </div>
 
-              <motion.button
-                onClick={() => navigate('/upload')}
-                className="flex items-center justify-center space-x-2 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-all"
-                whileHover={{ scale: 1.05, y: -2 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <Plus className="w-5 h-5" />
-                <span>Scan New Crop</span>
-              </motion.button>
+            {/* Treatment Content */}
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.3 }}
+              className="space-y-4"
+            >
+              {(activeTab === 'organic' ? organicTreatments : chemicalTreatments).map((treatment, index) => (
+                <div key={index} className={`p-4 rounded-xl border-2 ${
+                  activeTab === 'organic' 
+                    ? 'bg-green-50 border-green-200' 
+                    : 'bg-blue-50 border-blue-200'
+                }`}>
+                  <div className="flex items-start space-x-4">
+                    <div className={`p-3 rounded-lg ${
+                      activeTab === 'organic' ? 'bg-green-100' : 'bg-blue-100'
+                    }`}>
+                      <treatment.icon className={`w-6 h-6 ${
+                        activeTab === 'organic' ? 'text-green-600' : 'text-blue-600'
+                      }`} />
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="font-bold text-gray-800 mb-1">{treatment.title}</h4>
+                      <p className="text-gray-600 mb-2">{treatment.description}</p>
+                      <div className="flex items-center space-x-2">
+                        <Clock className="w-4 h-4 text-gray-400" />
+                        <span className="text-sm text-gray-500">Every {treatment.frequency}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </motion.div>
+          </div>
+        </AnimatedSection>
 
-              <motion.button
-                onClick={handleDownload}
-                className="flex items-center justify-center space-x-2 bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-all"
-                whileHover={{ scale: 1.05, y: -2 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <FileText className="w-5 h-5" />
-                <span>Download Report</span>
-              </motion.button>
+        {/* Maintenance Guidelines */}
+        <AnimatedSection delay={0.4} className="mb-8">
+          <div className="bg-white rounded-2xl shadow-xl p-6 border border-green-100">
+            <h2 className="text-2xl font-bold text-green-800 mb-6 flex items-center space-x-2">
+              <CheckCircle className="w-6 h-6" />
+              <span>Ongoing Maintenance Tips</span>
+            </h2>
+            
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {maintenanceGuidelines.map((guide, index) => (
+                <motion.div
+                  key={index}
+                  className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-4 border border-green-200 hover:shadow-lg transition-shadow"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.4 + index * 0.1 }}
+                >
+                  <div className="flex items-start space-x-3">
+                    <div className="bg-green-100 p-2 rounded-lg">
+                      <guide.icon className="w-5 h-5 text-green-600" />
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-gray-800 mb-1">{guide.title}</h4>
+                      <p className="text-gray-600 text-sm mb-2">{guide.description}</p>
+                      <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${
+                        guide.status === 'active' ? 'bg-green-100 text-green-800' :
+                        guide.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                        guide.status === 'scheduled' ? 'bg-blue-100 text-blue-800' :
+                        'bg-gray-100 text-gray-800'
+                      }`}>
+                        {guide.status}
+                      </span>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
             </div>
           </div>
-        </motion.div>
+        </AnimatedSection>
 
-        {/* Tabbed Solutions Section */}
-        <motion.div 
-          className="bg-white rounded-2xl shadow-xl p-6 mb-8"
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-        >
-          <h2 className="text-2xl font-bold text-green-800 mb-6">Treatment Solutions</h2>
-          
-          {/* Tab Navigation */}
-          <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg mb-6">
-            <button
-              onClick={() => setActiveTab('organic')}
-              className={`flex-1 flex items-center justify-center space-x-2 py-3 px-4 rounded-md font-semibold transition-all ${
-                activeTab === 'organic'
-                  ? 'bg-green-600 text-white shadow-md'
-                  : 'text-green-600 hover:bg-green-50'
-              }`}
-            >
-              <Leaf className="w-5 h-5" />
-              <span>Organic Solutions</span>
-            </button>
-            <button
-              onClick={() => setActiveTab('chemical')}
-              className={`flex-1 flex items-center justify-center space-x-2 py-3 px-4 rounded-md font-semibold transition-all ${
-                activeTab === 'chemical'
-                  ? 'bg-blue-600 text-white shadow-md'
-                  : 'text-blue-600 hover:bg-blue-50'
-              }`}
-            >
-              <Beaker className="w-5 h-5" />
-              <span>Chemical Solutions</span>
-            </button>
-          </div>
-
-          {/* Tab Content */}
-          <div className="min-h-[200px]">
-            {activeTab === 'organic' ? (
-              <div className="space-y-4">
-                <div className="bg-green-50 p-4 rounded-lg border border-green-200">
-                  <h4 className="font-semibold text-green-800 mb-2">Recommended Organic Treatments:</h4>
-                  <ul className="space-y-2">
-                    {organicSolutions.map((solution, index) => (
-                      <li key={index} className="flex items-start space-x-2">
-                        <span className="bg-green-200 text-green-800 text-sm font-bold px-2 py-1 rounded-full mt-0.5 min-w-[24px] text-center">
-                          {index + 1}
-                        </span>
-                        <span className="text-green-700">{solution}</span>
-                      </li>
-                    ))}
-                  </ul>
+        {/* Watering Prediction Graph */}
+        <AnimatedSection delay={0.5} className="mb-8">
+          <div className="bg-white rounded-2xl shadow-xl p-6 border border-green-100">
+            <h2 className="text-2xl font-bold text-green-800 mb-6 flex items-center space-x-2">
+              <BarChart3 className="w-6 h-6" />
+              <span>Watering Forecast Post-Treatment</span>
+            </h2>
+            
+            <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl p-6 border border-blue-200">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h3 className="font-semibold text-gray-800">Water Requirements Over Time</h3>
+                  <p className="text-gray-600 text-sm">Litres per day recommendation</p>
+                </div>
+                <div className="flex items-center space-x-4 text-sm">
+                  <div className="flex items-center space-x-1">
+                    <div className="w-3 h-3 bg-blue-500 rounded"></div>
+                    <span>Daily Water (L)</span>
+                  </div>
                 </div>
               </div>
-            ) : (
-              <div className="space-y-4">
-                <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                  <h4 className="font-semibold text-blue-800 mb-2">Chemical Treatment Options:</h4>
-                  <ul className="space-y-2">
-                    {chemicalSolutions.map((solution, index) => (
-                      <li key={index} className="flex items-start space-x-2">
-                        <span className="bg-blue-200 text-blue-800 text-sm font-bold px-2 py-1 rounded-full mt-0.5 min-w-[24px] text-center">
-                          {index + 1}
-                        </span>
-                        <span className="text-blue-700">{solution}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <div className="bg-yellow-50 p-3 rounded-lg border border-yellow-200">
-                  <p className="text-yellow-800 text-sm">⚠️ Always follow manufacturer instructions and safety guidelines when using chemical treatments.</p>
-                </div>
+              
+              {/* Simple Bar Chart */}
+              <div className="flex items-end justify-between h-40 bg-white rounded-lg p-4 space-x-2">
+                {wateringData.map((data, index) => (
+                  <div key={index} className="flex flex-col items-center flex-1">
+                    <motion.div
+                      className="bg-gradient-to-t from-blue-500 to-cyan-400 rounded-t-md w-full"
+                      initial={{ height: 0 }}
+                      animate={{ height: `${(data.water / 4) * 100}%` }}
+                      transition={{ duration: 1, delay: 0.6 + index * 0.1 }}
+                      style={{ minHeight: '20px' }}
+                    />
+                    <div className="text-xs font-medium text-gray-600 mt-2">{data.label}</div>
+                    <div className="text-xs text-blue-600 font-semibold">{data.water}L</div>
+                  </div>
+                ))}
               </div>
-            )}
-          </div>
-        </motion.div>
-
-        {/* Future Prevention Tips */}
-        <motion.div 
-          className="bg-white rounded-2xl shadow-xl p-6 mb-8"
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.6 }}
-        >
-          <div className="flex items-center space-x-3 mb-6">
-            <div className="bg-purple-100 p-3 rounded-full">
-              <Sparkles className="w-6 h-6 text-purple-600" />
+              
+              <p className="text-sm text-gray-500 mt-4 italic">
+                💡 This forecast is AI-generated based on past recoveries and current conditions.
+              </p>
             </div>
-            <h2 className="text-2xl font-bold text-green-800">Prevention Tips</h2>
           </div>
-          
-          <div className="grid md:grid-cols-2 gap-4">
-            {preventionTips.map((tip, index) => (
-              <div key={index} className="flex items-start space-x-3 p-3 bg-purple-50 rounded-lg border border-purple-200">
-                <span className="bg-purple-200 text-purple-800 text-sm font-bold px-2 py-1 rounded-full min-w-[24px] text-center">
-                  {index + 1}
-                </span>
-                <span className="text-purple-700">{tip}</span>
+        </AnimatedSection>
+
+        {/* Download Report & Share Section */}
+        <AnimatedSection delay={0.6} className="mb-8">
+          <div className="bg-gradient-to-r from-green-500 to-emerald-500 rounded-2xl shadow-xl p-8 text-white">
+            <div className="text-center mb-8">
+              <h2 className="text-3xl font-bold mb-2">Download & Share Results</h2>
+              <p className="text-green-100 text-lg">Share your result with your agri-circle</p>
+            </div>
+            
+            <div className="grid md:grid-cols-2 gap-8">
+              {/* Download Section */}
+              <div className="text-center">
+                <motion.button
+                  onClick={handleDownloadReport}
+                  className="bg-white text-green-600 hover:bg-green-50 font-bold py-4 px-8 rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:scale-105 flex items-center space-x-3 mx-auto"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <FileText className="w-6 h-6" />
+                  <span>Download Treatment Report (PDF)</span>
+                </motion.button>
+                <p className="text-green-100 text-sm mt-2">Comprehensive analysis & treatment plan</p>
               </div>
-            ))}
+              
+              {/* Share Section */}
+              <div className="text-center">
+                <h3 className="font-bold text-xl mb-4">Share on Social Media</h3>
+                <div className="flex justify-center space-x-4">
+                  {[
+                    { name: 'whatsapp', icon: MessageCircle, color: 'bg-green-600 hover:bg-green-700' },
+                    { name: 'facebook', icon: Facebook, color: 'bg-blue-600 hover:bg-blue-700' },
+                    { name: 'twitter', icon: Twitter, color: 'bg-sky-500 hover:bg-sky-600' },
+                    { name: 'instagram', icon: Instagram, color: 'bg-pink-500 hover:bg-pink-600' }
+                  ].map((social) => (
+                    <motion.button
+                      key={social.name}
+                      onClick={() => handleShare(social.name)}
+                      className={`${social.color} text-white p-3 rounded-full shadow-lg transition-all transform hover:scale-110`}
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                    >
+                      <social.icon className="w-5 h-5" />
+                    </motion.button>
+                  ))}
+                </div>
+                <p className="text-green-100 text-sm mt-2">Spread awareness about smart farming</p>
+              </div>
+            </div>
           </div>
-        </motion.div>
+        </AnimatedSection>
 
         {/* Action Buttons */}
-        <motion.div 
-          className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8"
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.8 }}
-        >
-          <motion.button
-            onClick={handleShare}
-            className="flex items-center justify-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-all"
-            whileHover={{
-              scale: 1.05,
-              boxShadow: "0 10px 25px rgba(59, 130, 246, 0.3)",
-              y: -2
-            }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <Share2 className="w-5 h-5" />
-            <span>Share Results</span>
-          </motion.button>
-
-          <motion.button
-            onClick={handleDownload}
-            className="flex items-center justify-center space-x-2 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-all"
-            whileHover={{
-              scale: 1.05,
-              boxShadow: "0 10px 25px rgba(34, 197, 94, 0.3)",
-              y: -2
-            }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <Download className="w-5 h-5" />
-            <span>Download Report</span>
-          </motion.button>
-
-          <motion.button
-            onClick={() => setIsChatOpen(true)}
-            className="flex items-center justify-center space-x-2 bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-all"
-            whileHover={{
-              scale: 1.05,
-              boxShadow: "0 10px 25px rgba(147, 51, 234, 0.3)",
-              y: -2
-            }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <MessageCircle className="w-5 h-5" />
-            <span>Ask AI Assistant</span>
-          </motion.button>
-
-          <motion.div>
+        <AnimatedSection delay={0.7} className="text-center">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               to="/upload"
-              className="flex items-center justify-center space-x-2 bg-green-100 hover:bg-green-200 text-green-700 font-semibold py-3 px-6 rounded-lg transition-all border border-green-300 group"
+              className="bg-green-600 hover:bg-green-700 text-white font-semibold py-4 px-8 rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:scale-105 flex items-center justify-center space-x-2"
             >
-              <Camera className="w-5 h-5 group-hover:rotate-12 transition-transform" />
+              <Camera className="w-5 h-5" />
               <span>Scan Another Crop</span>
             </Link>
-          </motion.div>
-        </motion.div>
-
+            
+            <button
+              onClick={() => navigate('/dashboard')}
+              className="bg-white hover:bg-gray-50 text-green-600 font-semibold py-4 px-8 rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:scale-105 border-2 border-green-200 flex items-center justify-center space-x-2"
+            >
+              <TrendingUp className="w-5 h-5" />
+              <span>View Dashboard</span>
+            </button>
+          </div>
+        </AnimatedSection>
       </div>
     </div>
   );
