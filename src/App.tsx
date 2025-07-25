@@ -9,6 +9,7 @@ import AboutPage from './pages/AboutPage';
 import DashboardPage from './pages/DashboardPage';
 import HeatmapPage from './pages/HeatmapPage';
 import Footer from './components/Footer';
+import GlobalChatPanel from './components/GlobalChatPanel';
 
 
 function App() {
@@ -26,6 +27,7 @@ function App() {
             <Route path="/heatmap" element={<HeatmapPage />} />
           </Routes>
           <Footer />
+          <GlobalChatPanel />
         </div>
       </Router>
     </LanguageProvider>

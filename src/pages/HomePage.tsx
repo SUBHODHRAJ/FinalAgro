@@ -90,19 +90,34 @@ const HomePage: React.FC = () => {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden" 
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden"
                style={{
                  background: 'linear-gradient(135deg, #E8F5E9 0%, #A5D6A7 50%, #4CAF50 100%)'
                }}>
+        {/* Background Image with Blur and Transparency */}
+        <div className="absolute inset-0">
+          <img
+            src="https://cdn.builder.io/api/v1/image/assets%2F313bba380ca249e9bf1fd750d853c3c2%2F56664a3e5c2c4497866ca831e99d50e2?format=webp&width=800"
+            alt="Plant seedlings background"
+            className="w-full h-full object-cover"
+            style={{
+              filter: 'blur(3px)',
+              opacity: 0.3
+            }}
+          />
+          {/* Overlay to ensure text readability */}
+          <div className="absolute inset-0 bg-gradient-to-br from-green-900/20 via-transparent to-emerald-900/30"></div>
+        </div>
+
         {/* Background Pattern */}
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute inset-0" 
+        <div className="absolute inset-0 opacity-10 z-10">
+          <div className="absolute inset-0"
                style={{
                  backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='0.1'%3E%3Cpath d='M30 30c0-16.569 13.431-30 30-30v60c-16.569 0-30-13.431-30-30z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
                }} />
         </div>
 
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -150,21 +165,13 @@ const HomePage: React.FC = () => {
             className="absolute top-20 left-10 md:left-20"
             animate={{ y: [0, -20, 0] }}
             transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-          >
-            <div className="bg-white/20 backdrop-blur-sm p-4 rounded-full">
-              <Leaf className="w-8 h-8 text-white" />
-            </div>
-          </motion.div>
+          />
 
           <motion.div
             className="absolute bottom-20 right-10 md:right-20"
             animate={{ y: [0, 20, 0] }}
             transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-          >
-            <div className="bg-white/20 backdrop-blur-sm p-4 rounded-full">
-              <Sun className="w-8 h-8 text-white" />
-            </div>
-          </motion.div>
+          />
         </div>
       </section>
 
