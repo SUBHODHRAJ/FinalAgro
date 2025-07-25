@@ -43,7 +43,6 @@ const Footer: React.FC = () => {
               <li><a href="/about" className="text-green-200 hover:text-white transition-colors font-medium">{t('nav.about')}</a></li>
               <li><a href="/upload" className="text-green-200 hover:text-white transition-colors font-medium">{t('nav.upload')}</a></li>
               <li><a href="/dashboard" className="text-green-200 hover:text-white transition-colors font-medium">{t('footer.dashboard')}</a></li>
-              <li><a href="/heatmap" className="text-green-200 hover:text-white transition-colors font-medium">{t('footer.heatmap')}</a></li>
             </ul>
           </div>
         </div>

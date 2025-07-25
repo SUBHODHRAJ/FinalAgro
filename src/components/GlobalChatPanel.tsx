@@ -27,7 +27,7 @@ const GlobalChatPanel: React.FC = () => {
     <>
       {/* Floating Chat Button - Only visible when panel is collapsed */}
       {!isPanelExpanded && (
-        <div className="fixed bottom-32 right-6 z-40">
+        <div className="fixed bottom-6 right-6 z-40">
           <button
             onClick={togglePanel}
             className="flex items-center space-x-3 bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 text-white px-6 py-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 group"
@@ -65,6 +65,7 @@ const GlobalChatPanel: React.FC = () => {
           isPanelExpanded ? 'w-[400px] h-[600px]' : 'w-0 h-0'
         }`}
         style={{
+          transformOrigin: 'bottom right',
           boxShadow: isPanelExpanded
             ? '0 25px 50px rgba(0, 0, 0, 0.15), 0 15px 35px rgba(34, 197, 94, 0.2), 0 5px 15px rgba(34, 197, 94, 0.3)'
             : 'none',

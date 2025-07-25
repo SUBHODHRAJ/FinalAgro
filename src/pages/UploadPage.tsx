@@ -14,7 +14,6 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { mockDetectDisease } from '../utils/mockAI';
 import { storage } from '../utils/storage';
 import { DetectionResult } from '../types';
-import ChatAssistant from '../components/ChatAssistant';
 
 const crops = [
   { id: 'tomato', name: 'crops.tomato', icon: '🍅' },
@@ -39,7 +38,6 @@ const UploadPage: React.FC = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string>('');
   const [dragActive, setDragActive] = useState(false);
-  const [isChatOpen, setIsChatOpen] = useState(false);
   const [isBackCamera, setIsBackCamera] = useState(true);
   const [showCamera, setShowCamera] = useState(false);
   const [videoStream, setVideoStream] = useState<MediaStream | null>(null);
@@ -265,23 +263,40 @@ const UploadPage: React.FC = () => {
             />
 
             {/* Upload Buttons */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-              <button
-                onClick={() => setShowCamera(true)}
-                className="flex items-center justify-center space-x-2 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
-                type="button"
-              >
-                <Camera className="w-5 h-5" />
-                <span>{t('upload.camera')}</span>
-              </button>
-              <button
-                onClick={() => fileInputRef.current?.click()}
-                className="flex items-center justify-center space-x-2 bg-green-100 hover:bg-green-200 text-green-700 font-semibold py-3 px-6 rounded-lg transition-colors border border-green-300"
-                type="button"
-              >
-                <ImageIcon className="w-5 h-5" />
-                <span>{t('upload.gallery')}</span>
-              </button>
+            <div className="mt-6">
+              {!selectedFile ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <button
+                    onClick={() => setShowCamera(true)}
+                    className="flex items-center justify-center space-x-2 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
+                    type="button"
+                  >
+                    <Camera className="w-5 h-5" />
+                    <span>{t('upload.camera')}</span>
+                  </button>
+                  <button
+                    onClick={() => fileInputRef.current?.click()}
+                    className="flex items-center justify-center space-x-2 bg-green-100 hover:bg-green-200 text-green-700 font-semibold py-3 px-6 rounded-lg transition-colors border border-green-300"
+                    type="button"
+                  >
+                    <ImageIcon className="w-5 h-5" />
+                    <span>{t('upload.gallery')}</span>
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => {
+                    setSelectedFile(null);
+                    setPreviewUrl('');
+                    setError('');
+                  }}
+                  className="w-full flex items-center justify-center space-x-2 bg-orange-600 hover:bg-orange-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
+                  type="button"
+                >
+                  <Upload className="w-5 h-5" />
+                  <span>Re-upload Photo</span>
+                </button>
+              )}
             </div>
           </div>
 
@@ -316,11 +331,6 @@ const UploadPage: React.FC = () => {
           </button>
         </div>
 
-        {/* Chat Assistant */}
-        <ChatAssistant 
-          isOpen={isChatOpen}
-          onToggle={() => setIsChatOpen(!isChatOpen)}
-        />
         {/* Camera Modal Overlay */}
         {showCamera && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80">
@@ -332,27 +342,29 @@ const UploadPage: React.FC = () => {
                 className="w-[320px] h-[240px] bg-black rounded-lg mb-4"
               />
               <canvas ref={canvasRef} className="hidden" />
-              <div className="flex space-x-4 mt-2">
-                <button
-                  onClick={handleFlipCamera}
-                  className="px-4 py-2 bg-green-200 text-green-800 rounded-lg font-semibold hover:bg-green-300"
-                  type="button"
-                >
-                  {facingMode === 'environment' ? t('upload.flipToFront') : t('upload.flipToBack')}
-                </button>
-                <button
-                  onClick={handleCapture}
-                  className="px-4 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700"
-                  type="button"
-                >
-                  {t('upload.capture')}
-                </button>
+              <div className="flex flex-col space-y-3 mt-4 w-full">
+                <div className="flex justify-center space-x-3">
+                  <button
+                    onClick={handleFlipCamera}
+                    className="px-6 py-3 bg-green-200 text-green-800 rounded-lg font-semibold hover:bg-green-300 transition-colors"
+                    type="button"
+                  >
+                    {facingMode === 'environment' ? 'Flip to Front Camera' : 'Flip to Back Camera'}
+                  </button>
+                  <button
+                    onClick={handleCapture}
+                    className="px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors"
+                    type="button"
+                  >
+                    Capture Photo
+                  </button>
+                </div>
                 <button
                   onClick={() => setShowCamera(false)}
-                  className="px-4 py-2 bg-red-500 text-white rounded-lg font-semibold hover:bg-red-600"
+                  className="px-6 py-2 bg-red-500 text-white rounded-lg font-semibold hover:bg-red-600 transition-colors"
                   type="button"
                 >
-                  {t('upload.close')}
+                  Close Camera
                 </button>
               </div>
             </div>

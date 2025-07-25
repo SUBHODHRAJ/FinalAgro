@@ -264,10 +264,10 @@ const DashboardPage: React.FC = () => {
                       <img
                         src={detection.imageUrl}
                         alt={`${detection.crop} scan`}
-                        className="w-20 h-20 object-cover rounded-lg shadow-md"
+                        className="w-24 h-24 object-cover rounded-lg shadow-md border-2 border-gray-200"
                       />
                     ) : (
-                      <div className="w-20 h-20 bg-gray-200 rounded-lg flex items-center justify-center">
+                      <div className="w-24 h-24 bg-gray-200 rounded-lg flex items-center justify-center border-2 border-gray-300">
                         <Camera className="w-8 h-8 text-gray-400" />
                       </div>
                     )}
