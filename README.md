@@ -1,25 +1,68 @@
 AgroIndia - Smart Crop Disease Detection and Monitoring System
-AgroIndia is an AI-powered web platform designed to assist agricultural stakeholders in detecting crop diseases from imagery and providing evidence-based recommendations for remedies and preventive measures. The system employs deep learning models for crop type and disease classification, and incorporates multilingual support, an interactive chat interface, and a robust disease tracking mechanism.
+
+AgroIndia is an AI-powered web platform designed to assist agricultural stakeholders in detecting crop diseases from images and providing evidence-based recommendations for remedies and preventive measures. The platform integrates deep learning models, multilingual support, an interactive chat assistant, and a robust disease monitoring system.
+
+
+---
+
 Features
- * AI-based crop and disease detection: Utilizes Convolutional Neural Network (CNN) models for accurate identification.
- * Crop-specific disease classifiers: Employs specialized models for each crop type to ensure high classification accuracy.
- * Image-based remedies, identification, and prevention guidelines: Provides detailed information derived from visual analysis.
- * Reference imagery: Includes visual examples of healthy crops and those exhibiting early, moderate, and severe disease symptoms.
- * Monitoring page with AI-based recommendations: Offers insights and suggestions based on detected disease patterns.
- * Chat Assistant: Facilitates user interaction and guidance.
- * Multi-language support: Available in English, Tamil, Hindi, and Bengali.
+
+AI-based Crop and Disease Detection:
+Utilizes Convolutional Neural Network (CNN) models for accurate detection.
+
+Crop-specific Disease Classifiers:
+Specialized models for each crop type ensure high classification accuracy.
+
+Image-based Remedies and Guidelines:
+Provides detailed remedies, identification methods, and preventive measures derived from image analysis.
+
+Reference Imagery:
+Visual examples of healthy crops and crops with early, moderate, and severe symptoms.
+
+Monitoring Dashboard:
+Historical tracking of detected diseases with AI-driven insights and recommendations.
+
+Interactive Chat Assistant:
+Provides multilingual guidance on disease prevention, remedies, and general crop care.
+
+Multi-language Support:
+Supports English, Tamil, Hindi, and Bengali.
+
+
+
+---
+
 Machine Learning Overview
-Crop Classifier: allcrop.keras identifies the crop type from an uploaded image.
-Disease Classifiers: Dedicated models are trained for each supported crop:
- * corn.keras
- * tomato.keras
- * rice.keras
- * wheat.keras
- * sugarcane.keras
- * cotton.keras
- * potato.keras
-Each model is trained on labeled disease datasets, ensuring high accuracy and confidence in its predictions.
+
+Crop Classifier:
+allcrop.keras – Identifies the crop type from uploaded images.
+
+Disease Classifiers:
+Dedicated deep learning models trained on labeled datasets for each crop:
+
+corn.keras
+
+tomato.keras
+
+rice.keras
+
+wheat.keras
+
+sugarcane.keras
+
+cotton.keras
+
+potato.keras
+
+
+
+Each model ensures high accuracy and confidence in disease predictions.
+
+
+---
+
 Project Structure
+
 AgroIndia/
 ├── backend/
 │   ├── main.py             # FastAPI backend logic
@@ -27,7 +70,7 @@ AgroIndia/
 ├── frontend/
 │   ├── src/
 │   │   ├── pages/          # Upload, Result, Monitor
-│   │   ├── images/         # Healthy, early, moderate, severe reference images
+│   │   ├── images/         # Healthy/early/moderate/severe reference images
 │   │   ├── contexts/       # Language and chat context
 │   │   ├── types.ts        # Type definitions
 │   │   └── ...
@@ -35,26 +78,69 @@ AgroIndia/
 ├── requirements.txt
 └── README.md
 
+
+---
+
 Setup Instructions
-1. Backend (FastAPI)
-Navigate to the backend directory and execute the following commands:
+
+Backend (FastAPI)
+
+1. Navigate to the backend directory:
+
 cd backend
+
+
+2. Create and activate a virtual environment:
+
 python -m venv venv
 source venv/bin/activate  # For Windows: venv\Scripts\activate
+
+
+3. Install dependencies:
+
 pip install -r requirements.txt
+
+
+4. Run the backend:
+
 uvicorn main:app --reload
 
-The backend server will run on http://localhost:8000.
-2. Frontend (React + Vite)
-Navigate to the frontend directory and execute the following commands:
+
+
+The backend server will run at http://localhost:8000
+
+
+---
+
+Frontend (React + Vite)
+
+1. Navigate to the frontend directory:
+
 cd frontend
+
+
+2. Install dependencies:
+
 npm install
+
+
+3. Start the development server:
+
 npm run dev
 
-The frontend application will run on http://localhost:5173.
-API Response Example
+
+
+The frontend application will run at http://localhost:5173
+
+
+---
+
+API Example
+
 Endpoint: POST /predict
-Response Body:
+
+Response:
+
 {
   "crop": "Corn",
   "disease": "Common Rust",
@@ -74,17 +160,47 @@ Response Body:
   "timestamp": "2025-07-26T12:30:00Z"
 }
 
-Monitoring Page
-The monitoring interface provides a historical record of detected diseases, displaying relevant information such as crop location, disease type, detection date, and associated reference imagery.
+
+---
+
+Monitoring Dashboard
+
+The Monitoring Page provides a historical record of detected diseases, displaying:
+
+Crop type and location
+
+Disease type
+
+Detection date
+
+Reference imagery
+
+
+
+---
+
 AI Recommendation Engine
-The integrated AI recommendation engine offers the following functionalities:
- * Suggests preventive measures to mitigate future disease outbreaks.
- * Tracks recurring diseases to identify persistent issues.
- * Assists in seasonal forecasting of potential disease prevalence.
+
+The AI engine:
+
+Suggests preventive measures to reduce future outbreaks
+
+Tracks recurring diseases
+
+Supports seasonal forecasting of disease prevalence
+
+
+
+---
+
 Chat Assistant
-The Chat Assistant supports four languages: English, Tamil, Hindi, and Bengali. It provides guidance on various agricultural topics, including:
- * Disease prevention strategies.
- * Remedial actions for detected diseases.
- * General crop care practices.
- * Pest control methods.
- * General fertilizer recommendations related to plant health.
+
+Supports English, Tamil, Hindi, and Bengali and offers guidance on:
+
+Disease prevention strategies
+
+Remedies for detected diseases
+
+Pest control methods
+
+Fertilizer and crop care recommendations
