@@ -59,15 +59,6 @@ const ChatAssistant: React.FC<ChatAssistantProps> = ({
       en: detectionResult 
         ? `Hello! I can help you understand the detected ${detectionResult.disease} in your ${detectionResult.crop} and provide treatment advice. What would you like to know?`
         : "Hello! I'm your farming assistant. Ask me about crop diseases, pest control, fertilizers, or any farming questions.",
-      hi: detectionResult
-        ? `नमस्ते! मैं आपके ${detectionResult.crop} में पाई गई ${detectionResult.disease} को समझने और इसके इलाज में मदद कर सकता हूँ। आप क्या जानना चाहते हैं?`
-        : "नमस्ते! मैं आपका कृषि सहायक हूँ। फसल की बीमारियों, कीट नियंत्रण, उर्वरक या किसी भी कृषि प्रश्न के बारे में पूछें।",
-      ta: detectionResult
-        ? `வணக்கம்! உங்கள் ${detectionResult.crop} இல் கண்டறியப்பட்ட ${detectionResult.disease} பற்றி புரிந்துகொள்ளவும் சிகிச்சை ஆலோசனை வழங்கவும் என்னால் உதவ முடியும். நீங்கள் என்ன தெரிந்துகொள்ள விரும்புகிறீர்கள்?`
-        : "வணக்கம்! நான் உங்கள் விவசாய உதவியாளர். பயிர் நோய்கள், பூச்சி கட்டுப்பாடு, உரங்கள் அல்லது எந்த விவசாய கேள்விகளையும் கேளுங்கள்।",
-      bn: detectionResult
-        ? `নমস্কার! আমি আপনার ${detectionResult.crop} এ সনাক্ত করা ${detectionResult.disease} বুঝতে এবং চিকিৎসার পরামর্শ দিতে সাহায্য করতে পারি। আপনি কী জানতে চান?`
-        : "নমস্কার! আমি আপনার কৃষি সহায়ক। ফসলের রোগ, কীটপতঙ্গ নিয়ন্ত্রণ, সার বা যেকোনো কৃষি প্রশ্ন সম্পর্কে জিজ্ঞাসা করুন।"
     };
 
     return {
