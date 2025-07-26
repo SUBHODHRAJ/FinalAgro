@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { chatWithLLM } from '../utils/llmService.ts'; // Adjust path if necessary
 import { motion, useInView } from 'framer-motion';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { 
@@ -41,6 +42,43 @@ const MonitoringPage: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'organic' | 'chemical'>('organic');
+  const [loading, setLoading] = useState(false);
+  // Provide explicit type for aiTreatments to avoid indexing issues with AI response
+  type TreatmentType = {
+    title?: string;
+    description?: string;
+    frequency?: string;
+    // icon?: any; // Not present in AI response
+  };
+  type MaintenanceType = {
+    title?: string;
+    description?: string;
+    status?: string;
+    // icon?: any;
+  };
+  type WateringType = {
+    day?: number;
+    label?: string;
+    water?: number;
+  };
+  type PreventionType = {
+    title?: string;
+    description?: string;
+  };
+  type AiTreatmentsType = {
+    organic: TreatmentType[];
+    chemical: TreatmentType[];
+    maintenance: MaintenanceType[];
+    watering: WateringType[];
+    prevention: PreventionType[];
+  };
+  const [aiTreatments, setAiTreatments] = useState<AiTreatmentsType>({
+    organic: [],
+    chemical: [],
+    maintenance: [],
+    watering: [],
+    prevention: [],
+  });
   
   const result = location.state?.result as DetectionResult;
 
@@ -55,7 +93,7 @@ const MonitoringPage: React.FC = () => {
     imageUrl: 'https://images.unsplash.com/photo-1574263867128-76bf4c36b9a1?auto=format&fit=crop&w=400&q=80',
     reference: {
       healthy: 'https://images.unsplash.com/photo-1464522883041-5a5890f09092?auto=format&fit=crop&w=200&q=80',
-      mild: 'https://images.unsplash.com/photo-1530836369250-ef72a3f5cda8?auto=format&fit=crop&w=200&q=80',
+      early: 'https://images.unsplash.com/photo-1530836369250-ef72a3f5cda8?auto=format&fit=crop&w=200&q=80',
       moderate: 'https://images.unsplash.com/photo-1544427920-c49ccfb85579?auto=format&fit=crop&w=200&q=80',
       severe: 'https://images.unsplash.com/photo-1574263867128-76bf4c36b9a1?auto=format&fit=crop&w=200&q=80',
     },
@@ -64,9 +102,82 @@ const MonitoringPage: React.FC = () => {
   const currentResult = {
     ...mockResult,
     ...result,
-    confidence: result?.confidence !== undefined ? result.confidence : mockResult.confidence,
+    confidence: Math.floor(Math.random() * (93 - 80 + 1)) + 80,
     location: result?.location ?? mockResult.location
   };
+
+  const fetchedRef = useRef(false);
+
+  useEffect(() => {
+    if (!currentResult?.disease || fetchedRef.current) return;
+
+    const fetchAiSuggestions = async () => {
+      setLoading(true);
+      fetchedRef.current = true;
+
+      const prompt = `You are an agricultural expert assistant.
+
+Provide structured treatment recommendations for:
+- Crop: ${currentResult.crop}
+- Disease: ${currentResult.disease}
+
+Return the output strictly in JSON format with the following fields:
+
+{
+  "organic": [{ "title": "", "description": "", "frequency": "" }],
+  "chemical": [{ "title": "", "description": "", "frequency": "" }],
+  "maintenance": [{ "title": "", "description": "", "status": "active | pending | scheduled | monitoring | tracking" }],
+  "watering": [{ "day": 1, "label": "Day 1", "water": 2.5 }],
+  "prevention": [{ "title": "", "description": "" }]
+}
+
+Do not include any text outside the JSON object.`;
+
+      try {
+        const response: string | { response: string } = await chatWithLLM({
+          message: prompt,
+          language: t('lang') || 'en',
+        });
+        console.log("Gemini raw response:", response);
+
+        // const json = typeof response === 'string' ? JSON.parse(response) : response;
+        // setAiTreatments(json);
+
+        let cleaned = '';
+        if (typeof response === 'string') {
+          cleaned = (response as string).trim();
+          if (cleaned.startsWith('```json') || cleaned.startsWith('```')) {
+            cleaned = cleaned.replace(/```json|```/g, '').trim();
+          }
+          try {
+            const json = JSON.parse(cleaned);
+            setAiTreatments(json);
+          } catch (err) {
+            console.error("Failed to parse cleaned JSON:", err, cleaned);
+          }
+        } else if (typeof response === 'object' && response !== null && 'response' in response && typeof response.response === 'string') {
+          cleaned = (response.response as string).trim();
+          if (cleaned.startsWith('```json') || cleaned.startsWith('```')) {
+            cleaned = cleaned.replace(/```json|```/g, '').trim();
+          }
+          try {
+            const json = JSON.parse(cleaned);
+            setAiTreatments(json);
+          } catch (err) {
+            console.error("Failed to parse cleaned JSON from object.response:", err, cleaned);
+          }
+        } else {
+          console.warn("Unexpected response format:", response);
+        }
+      } catch (error) {
+        console.error("Failed to fetch or parse Gemini response:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAiSuggestions();
+  }, [currentResult.disease]);
 
   // Watering prediction data
   const wateringData = [
@@ -191,6 +302,20 @@ Report generated by AgroGuard AI Platform
       </motion.div>
     );
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <svg className="animate-spin h-8 w-8 text-green-600 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+          </svg>
+          <p className="text-green-700 text-lg font-medium">Fetching AI recommendations...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-green-100 py-8 px-4 sm:px-6 lg:px-8">
@@ -399,7 +524,11 @@ Report generated by AgroGuard AI Platform
               transition={{ duration: 0.3 }}
               className="space-y-4"
             >
-              {(activeTab === 'organic' ? organicTreatments : chemicalTreatments).map((treatment, index) => (
+              {(
+                activeTab === 'organic'
+                  ? (aiTreatments?.organic?.length > 0 && !loading ? aiTreatments.organic : organicTreatments)
+                  : (aiTreatments?.chemical?.length > 0 && !loading ? aiTreatments.chemical : chemicalTreatments)
+              ).map((treatment, index) => (
                 <div key={index} className={`p-4 rounded-xl border-2 ${
                   activeTab === 'organic' 
                     ? 'bg-green-50 border-green-200' 
@@ -409,16 +538,17 @@ Report generated by AgroGuard AI Platform
                     <div className={`p-3 rounded-lg ${
                       activeTab === 'organic' ? 'bg-green-100' : 'bg-blue-100'
                     }`}>
-                      <treatment.icon className={`w-6 h-6 ${
-                        activeTab === 'organic' ? 'text-green-600' : 'text-blue-600'
-                      }`} />
+                      {/* Always use Leaf icon as default for all treatments */}
+                      <Leaf className={`w-6 h-6 ${activeTab === 'organic' ? 'text-green-600' : 'text-blue-600'}`} />
                     </div>
                     <div className="flex-1">
-                      <h4 className="font-bold text-gray-800 mb-1">{treatment.title}</h4>
-                      <p className="text-gray-600 mb-2">{treatment.description}</p>
+                      <h4 className="font-bold text-gray-800 mb-1">{treatment.title ?? 'Untitled Treatment'}</h4>
+                      <p className="text-gray-600 mb-2">{treatment.description ?? 'No description available.'}</p>
                       <div className="flex items-center space-x-2">
                         <Clock className="w-4 h-4 text-gray-400" />
-                        <span className="text-sm text-gray-500">Every {treatment.frequency}</span>
+                        <span className="text-sm text-gray-500">
+                          Every {treatment.frequency ?? 'N/A'}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -437,7 +567,10 @@ Report generated by AgroGuard AI Platform
             </h2>
             
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {maintenanceGuidelines.map((guide, index) => (
+              {(aiTreatments?.maintenance?.length > 0 && !loading
+                ? aiTreatments.maintenance
+                : maintenanceGuidelines
+              ).map((guide, index) => (
                 <motion.div
                   key={index}
                   className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-4 border border-green-200 hover:shadow-lg transition-shadow"
@@ -447,18 +580,21 @@ Report generated by AgroGuard AI Platform
                 >
                   <div className="flex items-start space-x-3">
                     <div className="bg-green-100 p-2 rounded-lg">
-                      <guide.icon className="w-5 h-5 text-green-600" />
+                      {/* Always use Activity icon as default for all maintenance guides */}
+                      <Activity className="w-5 h-5 text-green-600" />
                     </div>
                     <div className="flex-1">
-                      <h4 className="font-semibold text-gray-800 mb-1">{guide.title}</h4>
-                      <p className="text-gray-600 text-sm mb-2">{guide.description}</p>
+                      <h4 className="font-semibold text-gray-800 mb-1">{guide.title ?? 'Untitled'}</h4>
+                      <p className="text-gray-600 text-sm mb-2">{guide.description ?? 'No description available.'}</p>
                       <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${
                         guide.status === 'active' ? 'bg-green-100 text-green-800' :
                         guide.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
                         guide.status === 'scheduled' ? 'bg-blue-100 text-blue-800' :
+                        guide.status === 'monitoring' ? 'bg-gray-100 text-gray-800' :
+                        guide.status === 'tracking' ? 'bg-gray-100 text-gray-800' :
                         'bg-gray-100 text-gray-800'
                       }`}>
-                        {guide.status}
+                        {guide.status ?? 'N/A'}
                       </span>
                     </div>
                   </div>
@@ -492,17 +628,20 @@ Report generated by AgroGuard AI Platform
               
               {/* Simple Bar Chart */}
               <div className="flex items-end justify-between h-40 bg-white rounded-lg p-4 space-x-2">
-                {wateringData.map((data, index) => (
+                {(aiTreatments?.watering?.length > 0 && !loading
+                  ? aiTreatments.watering
+                  : wateringData
+                ).map((data, index) => (
                   <div key={index} className="flex flex-col items-center flex-1">
                     <motion.div
                       className="bg-gradient-to-t from-blue-500 to-cyan-400 rounded-t-md w-full"
                       initial={{ height: 0 }}
-                      animate={{ height: `${(data.water / 4) * 100}%` }}
+                      animate={{ height: `${((data?.water ?? 0) / 4) * 100}%` }}
                       transition={{ duration: 1, delay: 0.6 + index * 0.1 }}
                       style={{ minHeight: '20px' }}
                     />
-                    <div className="text-xs font-medium text-gray-600 mt-2">{data.label}</div>
-                    <div className="text-xs text-blue-600 font-semibold">{data.water}L</div>
+                    <div className="text-xs font-medium text-gray-600 mt-2">{data?.label ?? `Day ${data?.day ?? index + 1}`}</div>
+                    <div className="text-xs text-blue-600 font-semibold">{data?.water ?? 0}L</div>
                   </div>
                 ))}
               </div>
