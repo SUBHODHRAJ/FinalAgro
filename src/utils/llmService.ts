@@ -1,6 +1,7 @@
 import { ChatMessage } from '../types';
 
-const API_KEY = 'AIzaSyANYdWO4fyaB7aCMiV2YnS1kSxtVP91akM';
+const API_KEY = import.meta.env.VITE_AGRO_API;
+// const API_KEY = "AIzaSyA36Etn8PPdKcXQqR4AX6Ej_btNXnSaI10";
 const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
 
 const systemPrompt = `
