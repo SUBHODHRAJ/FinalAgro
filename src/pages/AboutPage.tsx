@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { 
-  Users, 
-  Target, 
-  Mail, 
-  Phone, 
+import {
+  Users,
+  Target,
+  Mail,
+  Phone,
   MapPin,
   Send,
   Heart,
@@ -11,6 +11,10 @@ import {
   Globe
 } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
+import SubhodhrajImg from '../images/subhodhraj.png';
+import RakshithImg from '../images/rakshith.png';
+import DevadhathanImg from '../images/devadhathan.jpg';
+import DineshImg from '../images/dineshm.png';
 
 const AboutPage: React.FC = () => {
   const { t } = useLanguage();
@@ -46,23 +50,29 @@ const AboutPage: React.FC = () => {
 
   const teamMembers = [
     {
-      name: 'Dr. Priya Sharma',
+      name: 'Subhodhraj',
       role: 'AI Research Lead',
-      image: 'https://images.pexels.com/photos/3182812/pexels-photo-3182812.jpeg?auto=compress&cs=tinysrgb&w=400',
-      description: 'PhD in Computer Vision, specialized in agricultural AI applications'
+      image: SubhodhrajImg,
+      github: "https://github.com/SUBHODHRAJ"
     },
     {
-      name: 'Rajesh Kumar',
+      name: 'Rakshith Raghaventhra',
       role: 'Agricultural Expert',
-      image: 'https://images.pexels.com/photos/2709388/pexels-photo-2709388.jpeg?auto=compress&cs=tinysrgb&w=400',
-      description: '15+ years experience in crop disease management and organic farming'
+      image: RakshithImg,
+      github: "https://github.com/RakshithRaghav"
     },
     {
-      name: 'Anita Patel',
+      name: 'Devadhathan Chandran',
       role: 'Software Engineer',
-      image: 'https://images.pexels.com/photos/3184418/pexels-photo-3184418.jpeg?auto=compress&cs=tinysrgb&w=400',
-      description: 'Full-stack developer with expertise in mobile and web applications'
-    }
+      image: DevadhathanImg,
+      github: "https://github.com/Devadhathan"
+    },
+    {
+      name: 'Dinesh Murugesan',
+      role: 'Software Engineer',
+      image: DineshImg,
+      github: "https://github.com/DineshMurugesan"
+    },
   ];
 
   return (
@@ -71,10 +81,10 @@ const AboutPage: React.FC = () => {
       <section className="py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto text-center">
           <h1 className="text-4xl md:text-5xl font-bold text-green-800 mb-6">
-            {t('about.title')}
+            about AgroIndia.
           </h1>
           <p className="text-xl text-green-600 max-w-3xl mx-auto leading-relaxed">
-            {t('about.hero.subtitle')}
+            Our mission is to empower farmers with cutting-edge AI technology for crop health and sustainability.
           </p>
         </div>
       </section>
@@ -91,28 +101,28 @@ const AboutPage: React.FC = () => {
                 </h2>
               </div>
               <p className="text-lg text-green-700 leading-relaxed mb-6">
-                {t('about.mission.text')}
+                We are committed to revolutionizing agriculture using artificial intelligence. Our platform helps farmers detect crop diseases early, reduce losses, and improve yields.
               </p>
               <div className="space-y-4">
                 <div className="flex items-start space-x-3">
                   <Heart className="w-6 h-6 text-red-500 mt-1" />
                   <div>
                     <h3 className="font-semibold text-green-800">Farmer-First Approach</h3>
-                    <p className="text-green-600">{t('about.mission.farmerFirst')}</p>
+                    <p className="text-green-600">We prioritize the needs of farmers by creating easy-to-use, practical tools.</p>
                   </div>
                 </div>
                 <div className="flex items-start space-x-3">
                   <Award className="w-6 h-6 text-yellow-500 mt-1" />
                   <div>
                     <h3 className="font-semibold text-green-800">Proven Accuracy</h3>
-                    <p className="text-green-600">{t('about.mission.accuracy')}</p>
+                    <p className="text-green-600">Our AI models are trained on diverse datasets to deliver reliable results.</p>
                   </div>
                 </div>
                 <div className="flex items-start space-x-3">
                   <Globe className="w-6 h-6 text-blue-500 mt-1" />
                   <div>
                     <h3 className="font-semibold text-green-800">Local Language Support</h3>
-                    <p className="text-green-600">{t('about.mission.languages')}</p>
+                    <p className="text-green-600">We support multiple Indian languages for better reach and usability.</p>
                   </div>
                 </div>
               </div>
@@ -139,28 +149,29 @@ const AboutPage: React.FC = () => {
               </h2>
             </div>
             <p className="text-lg text-green-600">
-              {t('about.team.subtitle')}
+              Meet the passionate individuals driving innovation in agro-technology.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {teamMembers.map((member, index) => (
-              <div key={index} className="bg-white rounded-2xl shadow-lg p-6 text-center hover:shadow-xl transition-shadow">
+              <a
+                key={index}
+                href={member.github}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-white rounded-2xl shadow-lg p-4 text-center hover:shadow-xl transition-shadow block"
+              >
                 <img
                   src={member.image}
                   alt={member.name}
-                  className="w-24 h-24 rounded-full mx-auto mb-4 object-cover"
+                  className="w-20 h-20 rounded-full mx-auto mb-4 object-cover"
                 />
-                <h3 className="text-xl font-semibold text-green-800 mb-2">
+                <h3 className="text-xl font-semibold text-green-800 mb-1">
                   {member.name}
                 </h3>
-                <p className="text-green-600 font-medium mb-3">
-                  {member.role}
-                </p>
-                <p className="text-green-700 text-sm leading-relaxed">
-                  {member.description}
-                </p>
-              </div>
+                {/* Removed member.role display */}
+              </a>
             ))}
           </div>
         </div>
@@ -186,7 +197,7 @@ const AboutPage: React.FC = () => {
                   </div>
                   <div>
                     <p className="font-semibold text-green-800">Email</p>
-                    <p className="text-green-600">support@agroguardian.com</p>
+                    <p className="text-green-600">support@agroindia.com</p>
                   </div>
                 </div>
                 
@@ -213,7 +224,7 @@ const AboutPage: React.FC = () => {
 
               <div className="mt-8 p-6 bg-green-50 rounded-xl border border-green-200">
                 <h3 className="font-semibold text-green-800 mb-2">Support Hours</h3>
-                <p className="text-green-600 text-sm">{t('about.contact.hours')}</p>
+                <p className="text-green-600 text-sm">Monday to Friday: 9 AM to 6 PM IST</p>
               </div>
             </div>
 
@@ -225,14 +236,14 @@ const AboutPage: React.FC = () => {
               
               {submitSuccess && (
                 <div className="mb-6 p-4 bg-green-100 border border-green-300 rounded-lg">
-                  <p className="text-green-700 font-medium">{t('about.contact.success')}</p>
+                  <p className="text-green-700 font-medium">Thank you! Your message has been received. We'll get back to you shortly.</p>
                 </div>
               )}
 
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
                   <label className="block text-green-800 font-medium mb-2">
-                    {t('about.contact.name')}
+                    Your Name
                   </label>
                   <input
                     type="text"
@@ -246,7 +257,7 @@ const AboutPage: React.FC = () => {
                 
                 <div>
                   <label className="block text-green-800 font-medium mb-2">
-                    {t('about.contact.email')}
+                    Your Email Address
                   </label>
                   <input
                     type="email"
@@ -260,7 +271,7 @@ const AboutPage: React.FC = () => {
                 
                 <div>
                   <label className="block text-green-800 font-medium mb-2">
-                    {t('about.contact.message')}
+                    Your Message
                   </label>
                   <textarea
                     name="message"
@@ -284,12 +295,12 @@ const AboutPage: React.FC = () => {
                   {isSubmitting ? (
                     <>
                       <div className="w-5 h-5 border-2 border-gray-700 border-t-transparent rounded-full animate-spin"></div>
-                      <span>{t('about.contact.sending')}</span>
+                      <span>Sending...</span>
                     </>
                   ) : (
                     <>
                       <Send className="w-5 h-5" />
-                      <span>{t('about.contact.send')}</span>
+                      <span>Send Message</span>
                     </>
                   )}
                 </button>
